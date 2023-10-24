@@ -1,2 +1,2 @@
 # Azalea-One-OpenSource-Project
-AzaleaOneMITライセンスに基づいて利用していただけます。
+MITライセンスに基づいて利用していただけます。
