@@ -1,5 +1,5 @@
-## Azalea-One-OpenSource-Project
-# このプロジェクトについて
+# Azalea-One-OpenSource-Project
+## このプロジェクトについて
 
 私が持っていてももったいない。ずっとフォルダの奥底に押し込んでいたOSもどきが少しでも皆様の力になれれば...
 Azalea-One-OpenSource-Projectは、あぜりあ Oneと呼ばれるOSもどきのオープンソース版を開発するプロジェクトです。
@@ -14,18 +14,18 @@ Azalea Oneの最新バージョンである2021/12/05 si1.10.5（厳密には開
 
 追記 : exeファイルも同梱していますが、Windows Defenderにブロックされる可能性があるためスクリプトエディタからの実行をお勧めします。
 
-【動作要件】
+###【動作要件】
 Windows10以降
 Hot Soup Processor 3.6以降
 intel Core i5(11世代)で動作確認済みです。
 UIを正しく表示させるために「Noto Sans JP」ファミリーと「超極細ゴシック」のインストールをお勧めします。
 
-【実演動画】
+###【実演動画】
 https://youtu.be/hP1w9O5gAmE?si=gaen3iRj-vkPr8dH
 https://youtu.be/UAYMRLLfIgY?si=_FacSRdvBFD1Npnw
 https://youtu.be/OjSEsU6Oheo?si=d55hj3Y5nK3yZrUA
 
-# ライセンス
+## ライセンス
 
 *MITライセンス*で公開しています。以下に要約を示しますが、*必ず全文を確認するよう*お願いします。
 
@@ -37,6 +37,6 @@ https://youtu.be/OjSEsU6Oheo?si=d55hj3Y5nK3yZrUA
 
 詳しくはLICENCE.txtまたは[The MIT License](https://opensource.org/license/mit/)、[APACHE LICENSE](https://www.apache.org/licenses/LICENSE-2.0)をご覧ください。
 
-# 最後に
+## 最後に
 
 OSもどきの開発に協力してくださったすべての仲間に感謝します。
