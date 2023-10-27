@@ -14,13 +14,13 @@ Azalea Oneの最新バージョンである2021/12/05 si1.10.5（厳密には開
 
 追記 : exeファイルも同梱していますが、Windows Defenderにブロックされる可能性があるためスクリプトエディタからの実行をお勧めします。
 
-###【動作要件】
+【動作要件】
 Windows10以降
 Hot Soup Processor 3.6以降
 intel Core i5(11世代)で動作確認済みです。
 UIを正しく表示させるために「Noto Sans JP」ファミリーと「超極細ゴシック」のインストールをお勧めします。
 
-###【実演動画】
+【実演動画】
 https://youtu.be/hP1w9O5gAmE?si=gaen3iRj-vkPr8dH
 https://youtu.be/UAYMRLLfIgY?si=_FacSRdvBFD1Npnw
 https://youtu.be/OjSEsU6Oheo?si=d55hj3Y5nK3yZrUA
