@@ -1,0 +1,168 @@
+*debugapp//設定アプリ
+	
+	
+
+
+	//window描画↓
+	if debugappon=1{
+
+
+	//閉じるボタンが押されたときの処理↓
+	if (active="debugapp")and(active2="debugapp")and(mousex>=1366-24)and(mousey>=24)and(mousex<=1366)and(mousey<=24+24){
+	getkey key,1
+	if key=1{
+		debugappon=0
+		}
+	}
+	//↑閉じるボタンが押されたときの処理
+
+		
+	if debugappwindowx<20{//windowのアニメーション
+		debugappwindowx=debugappwindowx+4
+		if debugappwindowx>=12{debugappwindowx=debugappwindowx-2}}
+	if debugappwindowx<0:debugappwindowx=0
+	if debugappwindowx>20:debugappwindowx=20
+	
+		
+	color 0,0,0
+	boxf 20-debugappwindowx,24+20-debugappwindowx,1366-20+debugappwindowx,768-20+debugappwindowx//windowの描画
+
+
+	if debugappwindowx=20{color 0,0,0:boxf 0,24,1366,768:pos 0,24:gmode 3,,,128:celput 29}//背景を描画
+	
+	
+	//window描画↑
+
+
+	color 255,255,255:gmode 4,,,216:pos 1366-128+20-chatwindowx,24:celput 24//右上の背景
+	font "Noto Sans JP Light",16,16:color 255,255,255:pos 1366-128+20-debugappwindowx+24,24:mes "Setting"//windowの名前
+
+	
+	//↓マウスを置いたときにアニメーション(閉じるボタン)
+	if (mousex>=1366-24)and(mousey>=24)and(mousex<=1366)and(mousey<=24+24){
+		if windowgmode2<256{windowgmode2=windowgmode2+16}
+		}else{if (windowgmode2>0){windowgmode2=windowgmode2-8}}
+	if windowgmode2<0:windowgmode2=0
+	pos 1366-24+20-debugappwindowx,24:color 0,0,0:gmode 4,,,windowgmode2:celput 22
+	//↑マウスを置いたときにアニメーション(閉じるボタン)
+
+	pos 1366-24-24+20-debugappwindowx,24:gmode 2:celput 23
+	
+	pos 1366-24+20-debugappwindowx,24:gmode 2:celput 21
+	
+	//↓アプリの内容
+
+
+	
+	color 255,255,255:pos 0+16,24+2:mes "Setting"//左上の名前
+	pos 16,48:color 0,0,0:gmode 4,,,212:celput 31:gmode 0//メニューの表示
+
+
+	//↓ハイライトする項目のアニメーション
+	
+	if settingmenunumber=0{//ユーザー情報だったら
+		if settingmenuhighlight>48{
+			settingmenuhighlight=settingmenuhighlight-16}
+		if settingmenuhighlight<48{
+			settingmenuhighlight=settingmenuhighlight+16}
+		}
+
+	if settingmenunumber=1{//システム情報だったら
+		if settingmenuhighlight>48+64{
+			settingmenuhighlight=settingmenuhighlight-16}
+		if settingmenuhighlight<48+64{
+			settingmenuhighlight=settingmenuhighlight+16}
+		}
+
+	pos 16,settingmenuhighlight:color 0,0,0:gmode 4,,,128:celput 32//highlightの描画
+	//↑ハイライトする項目のアニメーション
+	
+
+
+
+	//↓一番上のメニュー
+
+	
+	//↓メニューのマウスを置いたときのアニメーション(一番上)
+	if (active="debugapp")and(active2="debugapp")and(mousex>=16)and(mousey>=48)and(mousex<=16+256)and(mousey<=48+64){
+		
+		getkey key,1
+		if key=1{settingmenunumber=0}//クリックされたらそこのメニューを開く
+		
+		if settinggmode1<128{settinggmode1=settinggmode1+16}
+	}else{if settinggmode1>0{settinggmode1=settinggmode1-8}
+		}
+	if settinggmode1<0:settinggmode1=0
+	pos 16,48:color 0,0,0:gmode 4,,,settinggmode1:celput 32
+	//↑アニメーション
+	
+	pos 16,48:gmode 2:celput 33:gmode 0//ユーザー写真
+	
+	pos 16+64,48:font "Noto Sans JP Light",16,16:color 255,255,255:mes username//ユーザーネーム
+
+	//↑一番上のメニュー
+
+
+
+
+	//↓システム情報のメニュー
+
+	//↓メニューのマウスを置いたときのアニメーション(一番上)
+	if (active="debugapp")and(active2="debugapp")and(mousex>=16)and(mousey>=48+64)and(mousex<=16+256)and(mousey<=48+64+64){
+		
+		getkey key,1
+		if key=1{settingmenunumber=1}//クリックされたらそこのメニューを開く
+		
+		if settinggmode2<128{settinggmode2=settinggmode2+16}
+	}else{if settinggmode2>0{settinggmode2=settinggmode2-8}
+		}
+	if settinggmode2<0:settinggmode2=0
+	pos 16,48+64:color 0,0,0:gmode 4,,,settinggmode2:celput 32
+	//↑アニメーション
+	
+	pos 16,48+64:gmode 2:celput 36:gmode 0//ユーザー写真
+	
+	pos 16+64,48+64:font "Noto Sans JP Light",16,16:color 255,255,255:mes "info"//情報
+
+	//↑システム情報のメニュー
+
+	
+
+	if settingmenunumber=0{//もしユーザー項目が選ばれていたら
+		pos 256+128,48:gmode 2:celput 18:gmode 0//ユーザー画像
+		font "Noto Sans JP Light",24,16:color 255,255,255:pos 256+128+128,48:mes username//ユーザーネーム
+		pos 256+128+128,48+26:font "Noto Sans JP Light",16,16:mes "GamesScore(bete)/"+gamesscore+""//スコア
+		font "Noto Sans JP Light",16,16//フォント
+		pos 256+128,256:mes "このメニューは試作段階です"
+		}
+	if settingmenunumber=1{//もしシステムの情報　が選ばれていたら
+		pos 256+128,48:gmode 2:celput 37:gmode 0//システムのアイコン
+		font "Noto Sans JP Light",24,16:color 255,255,255:pos 256+128+128,48:mes sysname2//システムの名前
+		pos 256+128+128,48+26:font "Noto Sans JP Light",16,16:mes "Alpha Edition"//Editionなど
+		font "Noto Sans JP Light",16,16//フォント
+
+		
+		pos 256+128,256:mes "System / "+sysname2+""
+		mes "Version / "+ver+""
+		mes "Copyright / "+copyright+""
+		mes "	(このコンピュータは試作段階です。動作保証は致しません。)"
+		mes "このシステムが動作しているコンピュータ / "+sysinfo(0)+""
+		mes "ネットワーク上のコンピュータの名前 / "+sysinfo(2)+""
+		}
+
+	
+	//↑アプリの内容
+	}
+
+	
+	
+	if debugappon=0{//もし設定アプリが閉じるになっていたら閉じる
+		if debugappwindowx>0{
+		debugappwindowx=debugappwindowx-4
+		if debugappwindowx<=8{debugappwindowx=debugappwindowx+2}}
+		if  debugappwindowx<=0{}else{color 0,0,0:boxf 20-debugappwindowx,24+20-debugappwindowx,1366-20+debugappwindowx,768-20+debugappwindowx}
+		
+		}
+		//↑
+	
+	return

@@ -1,0 +1,80 @@
+*search
+	if (mousex>=1366-100)and(mousey>=0)and(mousex<=1366-100+24)and(mousey<=24)and(active!"lock")and(active2!"lock"){
+	getkey key,1
+	if key=1{
+		if key!keysearch{
+			if searchmenu=1{
+				searchmenu=0
+				}else{
+					searchmenu=1}
+			}
+		}
+	}
+	keysearch=key
+	//↑ロック画面切り替え
+	//↓searchmenu（表示するかしないか）が1になったときyに加算する / searchmenuy=サーチ画面のy座標 / searchmenugmode=サーチ画面のgmode
+	if searchmenu=0{
+		if searchmenuy>0{searchmenuy=searchmenuy-1}
+		if searchmenuy>4{searchmenuy=searchmenuy-2}
+		if searchmenuy>16{searchmenuy=searchmenuy-4}
+		if searchmenuy>32{searchmenuy=searchmenuy-8}
+		if searchmenuy>64{searchmenuy=searchmenuy-16}
+		if searchmenuy>264{searchmenuy=searchmenuy-32}
+		}
+	if searchmenu=1{
+		active="search"
+		if searchmenuy<0{searchmenuy=searchmenuy+32}
+		if searchmenuy<200{searchmenuy=searchmenuy+16}
+		if searchmenuy<232{searchmenuy=searchmenuy+8}
+		if searchmenuy<248{searchmenuy=searchmenuy+4}
+		if searchmenuy<260{searchmenuy=searchmenuy+2}
+		if searchmenuy<264{searchmenuy=searchmenuy+1}
+		}
+	searchmenuy1=264-searchmenuy
+	//↑y座標の計算
+	if searchmenuy<0:searchmenuy=0//オーバーフロー/アンダーフローしたときの救済措置
+	if searchmenuy>768:searchmenuy=768
+	
+	//↓gmodeの計算
+	searchmenugmode=0
+	if searchmenuy>32:searchmenugmode=10
+	if searchmenuy>128:searchmenugmode=100
+	if searchmenuy>256:searchmenugmode=245
+	//↑gmodeの計算
+	
+	if searchmenugmode!0{
+		pos 683-320,184-searchmenuy1//座標や画像透過
+		color 255,255,255
+		gmode 4,,,searchmenugmode
+		celput 12//背景の描画
+		pos 683-320+8,184-searchmenuy1+400-48-2
+		if searchmenugmode>128{gmode 3,,,128}
+		celput 14//ミニメニューの描画
+		gmode 0
+	
+	
+	//↓メニューの内容
+		if (mousex>=683-320+8)and(mousey>=184-searchmenuy1+400-48-2)and(mousex<=683-320+8+48)and(mousey<=184-searchmenuy1+400-48-2+48){
+			gmode 3,,,128 :pos 683-320+8,184-searchmenuy1+400-48-2:celput 16:gmode 0
+			}
+		gmode 2:pos 683-320+8,184-searchmenuy1+400-48-2:celput 13
+	//↑メニューの内容
+	}
+
+
+
+
+
+	
+	//他のところをクリックしたら閉じる
+	getkey key,1
+	if key=1{
+		if searchmenuy1<=0{
+			if (mousex>683-320)and(mousey>184-searchmenuy1)and(mousex<683-320+640)and(mousey<184-searchmenuy1+400){}else{
+				if (mousex>=1366-100)and(mousey>=0)and(mousex<=1366-100+24)and(mousey<=24){}else{searchmenu=0}
+				}
+		}
+	}
+	
+	
+	return

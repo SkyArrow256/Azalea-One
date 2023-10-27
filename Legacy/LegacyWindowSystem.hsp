@@ -1,0 +1,290 @@
+	////↓windowsを描画する関数
+	#deffunc WindowsDraw
+
+
+
+
+	
+	//↓window関数に値を渡す
+	WindowDrawOn=settingappon(WindowID)//表示するかしないかを代入
+	WindowActiveKind(WindowID)="setting"//アクティブになったときに代入するアプリの名前(アプリ名)
+	WindowWait=settingwinwait(WindowID)//待ち時間
+	WindowWaitf=settingwinwaitf(WindowID)//実数値に変換
+	WindowGmode=settingwing(WindowID)//windowの大きさ
+	WindowGmodeG2=settingwing2(WindowID)//もうなんかわけわかめ
+	WindowGmode2=settingwingmode(WindowID)//影の濃さ（のハズ）
+	WindowMoveX1=settingwindowmovex1(WindowID)//window右上からみたx座標
+	WindowMoveY1=settingwindowmovey1(WindowID)//window右上からみたy座標
+	WindowMoveX=settingwinposx(WindowID)//windowの座標
+	WindowMoveY=settingwinposy(WindowID)//windowの座標
+	WindowMove2=settingwindowmovex2(WindowID)//windowを動かすかどうか
+	WindowMoveX3=settingwindowmovex3(WindowID)//一時的にクリックした座標を保存
+	WindowMoveY3=settingwindowmovey3(WindowID)//一時的にクリックした座標を保存
+	WindowScreen=settingwindowscreen(WindowID)//全画面かwindow表示か
+	WindowMenuGmode=windowgmode1(WindowID)//windowの右上のあれの透過率（雑）
+	WindowAnime1=settingwinanime1(WindowID)//上からアニメーションをかける
+	//↑window関数に値を渡す
+
+
+	
+
+
+	if WindowDrawOn=1{//もし表示するになっていたら
+
+
+		
+
+
+		if windowactive=WindowActiveKind{active=WindowActiveKind}//アクティブに
+
+
+		//↓起動した直後のアニメーション
+
+		if WindowWait<=48{
+			setease 0.5,1.0,ease_quartic_out//計算式を設定
+			WindowWaitf=0.0+WindowWait//実数値に変換
+			
+			WindowGmode=geteasef(WindowWaitf,48.0)//windowのサイズをアニメーション(WindowGmode)
+			
+			WindowGmode2=3*WindowWait
+			}
+		
+		//↑起動した直後のアニメーション
+
+	
+
+		
+
+
+
+		//↓windowの移動
+
+
+		
+		WindowMoveX1=mousex-WindowMoveX//window右上からみたx座標
+		WindowMoveY1=mousey-WindowMoveY//window右上から見たy座標
+
+
+		/*
+		settingwindowmovex(y)1=window右上から見た座標
+		WindowMove2=動かすかどうか。1=動かす 0=動かさない
+		WindowMoveX(Y)3=一時的にクリックした座標を保存
+		*/
+	
+		if (syskey1=1)and(mousex>=WindowMoveX)and(mousey>=WindowMoveY)and(mousex<=WindowMoveX+664-128+51+WindowMenuPlusX)and(mousey<=WindowMoveY+24)and(windowactive=WindowActiveKind){
+			WindowMove2=1
+			WindowMoveX3=WindowMoveX1//一時的にクリックした座標を保存
+			WindowMoveY3=WindowMoveY1//一時的にクリックした座標を保存
+			}//もし一瞬クリックされたら動かすようにwindowmovex2=1にする
+
+
+
+		getkey key,1//キーが押し続けられているか取得
+		if (WindowMove2=1){
+			if key=1{
+				WindowMoveX=mousex-WindowMoveX3
+				WindowMoveY=mousey-WindowMoveY3
+			}else{
+				WindowMove2=0//もしクリックが離されたら動かさないようにする
+				windowactive=WindowActiveKind//windowをActiveに
+				WindowMoveX3=0//リセット
+				WindowMoveY3=0//リセット
+				}
+			}
+
+
+		
+		//↑windowの移動
+
+
+
+
+
+
+
+		//↓windowの描画
+
+
+		pos WindowMoveX,WindowMoveY:gmode 3,1,1,WindowGmode2*2//座標など
+
+		//最大化されているかwindow表示かで大きさを変える
+		if WindowScreen=0{
+			WindowBokasiX=664
+			WindowBokasiY=498
+			}else{
+			WindowBokasiX=1366
+			WindowBokasiY=768
+			}
+		
+			//↓イージング
+			DEasingX1=WindowMoveX
+			DEasingY1=WindowMoveY
+			DEasingX2=WindowBokasiX
+			DEasingY2=WindowBokasiY
+			DEasingGsel=0
+
+			DefaultEasing//←関数
+			
+			//↑イージング
+
+		//gsel 68//仮想windowに移動
+
+
+		color 0,0,0:gmode 4,1,1,WindowGmode2
+		pos WindowMoveX+(1366-(WindowGmode*664)/2)-1034,WindowMoveY+(768-(WindowGmode*498)/2)-519//座標設定
+		
+		if WindowScreen=0{WindowGmodeG2=0.0
+		
+			celput 50,,WindowGmode+WindowGmodeG2,WindowGmode+WindowGmodeG2}
+			//windowの白い部分の描画/window表示なら
+			
+		if WindowScreen=1{
+			
+			if WindowGmodeG2<2.0:WindowGmodeG2=WindowGmodeG2+0.1
+			celput 58,,1,1
+			
+			}//全画面表示ならアニメーションをかける
+			
+		
+		
+
+		
+		//↑windowの描画
+		
+		gmode 0
+
+		if WindowWait<512{WindowWait=WindowWait+1}//時間経過をカウント
+
+		
+
+
+	
+
+		if WindowScreen=1{//もし最大化されていたら
+			WindowMenuPlusX=1366-664//右上のメニューのx座標（最大化されたときに用いる）"+WindowMenuPlusX"
+			WindowMenuPlusY=768-498//クリックできる範囲の指定(y座標)"+WindowMenuPlusY"
+			}else{
+				WindowMenuPlusX=0
+				WindowMenuPlusY=0
+			}//↑最大化が解除されたら初期値にリセットする
+
+
+		
+
+
+		if (mousex>=WindowMoveX)and(mousey>WindowMoveY-1)and(mousex<=WindowMoveX+664+WindowMenuPlusX)and(mousey<=WindowMoveY+498+WindowMenuPlusY)and(active!"usermenu")and(active2!"usermenu")and(active!"lock")and(active2!"lock"){
+			if syskey1=1{
+				windowactive=WindowActiveKind}//window内をクリックされたらアクティブに
+			}else{
+				if syskey1=1{
+				windowactive=""}}//window外をクリックされたら非アクティブに
+		
+	}
+
+
+
+
+
+	if WindowDrawOn=0{//もし表示しないになっていたら
+		WindowWait=0//時間経過地をリセット
+		
+	}
+
+
+
+
+	if (mousex>=WindowMoveX+664-128+103+WindowMenuPlusX)and(mousey>=WindowMoveY)and(mousex<=WindowMoveX+664+WindowMenuPlusX)and(mousey<=WindowMoveY+24)and(active!"usermenu")and(active2!"usermenu")and(active!"lock")and(active2!"lock"){
+			if syskey1=1{
+				WindowDrawOn=0}}//設定アプリを閉じる
+
+
+	if (mousex>=WindowMoveX+664-128+103-30+WindowMenuPlusX)and(mousey>=WindowMoveY)and(mousex<=WindowMoveX+664-30+WindowMenuPlusX)and(mousey<=WindowMoveY+24)and(active!"usermenu")and(active2!"usermenu")and(active!"lock")and(active2!"lock"){
+			if syskey1=1{
+				if WindowScreen=0{
+					WindowScreen=1
+					WindowMoveX=0//座標を0に
+					WindowMoveY=0//座標を0に
+				}else{
+						WindowScreen=0}}}//最大化orwindow表示を切りかえる
+
+
+
+
+	
+	if (WindowScreen=1){//全画面表示のときの最大化の処理
+
+
+		if (WindowMoveX!0)and(WindowMoveY!0){
+			WindowScreen=0//もしwinodowが動かされたら強制的にwindow表示にする
+			WindowMoveX3=mousex/3//座標調節
+			}
+
+		
+
+
+	
+	//gsel 68
+	
+	
+
+
+
+	
+	return
+	//↑windowsを描画する関数
+
+
+
+	//↓windowsのうえからアニメーションをかける関数
+	#deffunc WindowsDraw2
+
+
+	//gsel 68
+
+	
+
+	if WindowDrawOn=1{//もし表示するになっていたら
+		//↓マウスを置いたときにアニメーション(閉じるボタン)
+		if (mousex>=WindowMoveX+664-128+51+WindowMenuPlusX)and(mousey>=WindowMoveY)and(mousex<=WindowMoveX+664+WindowMenuPlusX)and(mousey<=WindowMoveY+24){
+			if WindowMenuGmode<256{WindowMenuGmode=WindowMenuGmode+16}
+			}else{if (WindowMenuGmode>0){WindowMenuGmode=WindowMenuGmode-8}}
+		if WindowMenuGmode<0:WindowMenuGmode=0
+		pos WindowMoveX+664-128+WindowMenuPlusX,WindowMoveY:color 255,255,255:gmode 4,,,WindowMenuGmode:celput 57//windowの右上のメニューのポインター
+		//↑マウスを置いたときにアニメーション(閉じるボタン)
+		
+		pos WindowMoveX+664-128+WindowMenuPlusX,WindowMoveY:gmode 2:celput 56//windowの右上のメニュー
+		pos WindowMoveX+664-128+WindowMenuPlusX,WindowMoveY
+		if windowactive=WindowActiveKind{color 0,0,0}else{color 128,128,128}//アクティブかどうかによって変わる色の設定
+		font "Noto Sans JP Light",12,16:mes WindowActiveKind//タイトル
+	}
+
+
+
+	
+
+	//↓window関数の値を保存する
+	settingappon(WindowID)=WindowDrawOn//表示するかしないかを代入
+	settingwinwait(WindowID)=WindowWait//待ち時間
+	settingwinwaitf(WindowID)=WindowWaitf//実数値に変換
+	settingwing(WindowID)=WindowGmode//windowの大きさ
+	settingwing2(WindowID)=WindowGmodeG2//もうなんかわけわかめ
+	settingwingmode(WindowID)=WindowGmode2//影の濃さ（のハズ）
+	settingwindowmovex1(WindowID)=WindowMoveX1//window右上からみたx座標
+	settingwindowmovey1(WindowID)=WindowMoveY1//window右上からみたy座標
+	settingwinposx(WindowID)=WindowMoveX//windowの座標
+	settingwinposy(WindowID)=WindowMoveY//windowの座標
+	settingwindowmovex2(WindowID)=WindowMove2//windowを動かすかどうか
+	settingwindowmovex3(WindowID)=WindowMoveX3//一時的にクリックした座標を保存
+	settingwindowmovey3(WindowID)=WindowMoveY3//一時的にクリックした座標を保存
+	settingwindowscreen(WindowID)=WindowScreen//全画面かwindow表示か
+	windowgmode1(WindowID)=WindowMenuGmode//windowの右上のあれの透過率（雑）
+	settingwinanime1(WindowID)=WindowAnime1//上からアニメーションをかける
+	//↑window関数の値を保存する
+
+
+	gsel 0//メインwindowに描画を戻す
+
+
+	
+	return
+	//↑windowsのうえからアニメーションをかける関数

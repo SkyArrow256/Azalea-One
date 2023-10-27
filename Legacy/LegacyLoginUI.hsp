@@ -1,0 +1,56 @@
+*lockmenu
+	//ロック画面の描画
+	if lock=1{
+		if lockpos1<=0{
+			lockpos1=lockpos1+64
+			if lockpos1>(ginfo(21)/4)*-1{
+				lockpos1=lockpos1-16}
+			if lockpos1>(ginfo(21)/8)*-1{
+				lockpos1=lockpos1-40}
+			if lockpos1>(ginfo(21)/16)*-1{
+				lockpos1=lockpos1-4}
+			}
+		if lockpos1>0:lockpos1=0
+		}
+	if lock!1{
+		if lockpos1>=ginfo(21)*-1{
+			lockpos1=lockpos1-64
+			if lockpos1<(ginfo(21)-ginfo(21)/4)*-1{
+				lockpos1=lockpos1+16}
+			if lockpos1<(ginfo(21)-ginfo(21)/8)*-1{
+				lockpos1=lockpos1+40}
+			if lockpos1<(ginfo(21)-ginfo(21)/16)*-1{
+				lockpos1=lockpos1+4}
+			}
+		if lockpos1<ginfo(21)*-1:lockpos1=ginfo(21)*-1
+		}
+	//↑以上
+	
+	//↓ロック画面の画像の透明度計算
+	if lockpos1+ginfo(21)>10:lockpicgmode=8
+	if lockpos1+ginfo(21)>40:lockpicgmode=16
+	if lockpos1+ginfo(21)>150:lockpicgmode=32
+	if lockpos1+ginfo(21)>300:lockpicgmode=64
+	if lockpos1+ginfo(21)>600:lockpicgmode=126
+	if lockpos1+ginfo(21)>700:lockpicgmode=256
+	//↑以上
+	pos 0,lockpos1:gmode 3,,,lockpicgmode:celput 2:gmode 0
+	pos ginfo(20)/20,ginfo(21)-ginfo(21)/3+lockpos1+lockpos1
+	//時刻表示
+		color 0,0,0
+		font "03スマートフォントUI",128
+		mes timedatams
+		pos ginfo(20)/20+25,
+		font "03スマートフォントUI",32
+		mes timedays
+		pos ginfo(20)/2,ginfo(21)-ginfo(21)/3+lockpos1+128+lockpos1
+	//時刻によるあいさつの変更
+		if timeset=0:mes "Good evening!"+username+""
+		if timeset=1:mes "Good morning!"+username+""
+		if timeset=2:mes "Good afternoon!"+username+""
+	//そのほかの情報
+	
+	font "Yu Gothic UI",32//フォントを直す
+	if lockpos1+ginfo(21)>ginfo(21)/2:deskmode="lock"
+	//
+	return
