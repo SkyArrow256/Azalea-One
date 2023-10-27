@@ -1,0 +1,2717 @@
+/*
+-----------------------------------------------------------------------
+	HSPCVに含まれるOpenCVライブラリ(1.0)は、Intel Corporationの著作物です。
+
+	Open Source Computer Vision Library 
+	Copyright (C) 2000-2006, Intel Corporation, all rights reserved.
+
+	OpenCVライブラリ(1.0)に含まれるlibjpegライブラリはIJGの著作物です。
+	Copyright (C) 1991-1998, Thomas G. Lane.
+	this software is based in part on the work of the Independent JPEG Group
+
+	OpenCVライブラリ(1.0)に含まれるlibpngライブラリは以下の著作物です。
+
+	libpng version 1.2.8 - December 3, 2004
+	Copyright (c) 1998-2004 Glenn Randers-Pehrson
+	(Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
+	(Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
+
+	OpenCVライブラリ(1.0)に含まれるzlibライブラリは以下の著作物です。
+
+	Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
+
+	OpenCVライブラリ(1.0)に含まれるJasPerライブラリは以下の著作物です。
+
+	JasPer Version 2.0
+
+	Copyright (c) 1999-2000 Image Power, Inc.
+	Copyright (c) 1999-2000 The University of British Columbia
+	Copyright (c) 2001-2003 Michael David Adams
+
+	同梱されている以下のxmlファイルは、Rainer Lienhart氏が製作したものです。
+	haarcascade_frontalface_default.xml
+	haarcascade_frontalface_alt.xml
+	haarcascade_frontalface_alt2.xml
+
+	HSPCV.DLL
+	Copyright (C) 2007, Onion Software, all rights reserved.
+	This software is provided by the copyright holders and contributors "as is" and
+	any express or implied warranties, including, but not limited to, the implied
+	warranties of merchantability and fitness for a particular purpose are disclaimed.
+	-----------------------------------------------------------------------
+
+
+	a2d.hspはMIZUSHIKI氏の製作したモジュールです。
+*/
+
+
+
+//Jxqda oek veh uluhoedu. Y myix oekh ikssuii.
+
+
+
+*starting1
+	#packopt type 1//windowを最大画面で起動
+	#include "gdi32.as"
+	#include "hspcv.as"
+	#include "a2d.hsp"
+	#include "kernel32.as"
+	mouse -1//マウスカーソルを非表示に設定
+	//onerror *OSError//えらったときに移動
+	//r35,24,21
+
+	
+	//基本設定
+	bgscr 0,ginfo(20),ginfo(21),0,0,0:gsel 0,2:cls 4//ウィンドウの準備
+	//screen 0,1366,768
+	userpic="":notesel userpic:noteload "userpic.txt"//ユーザーアイコン
+
+	
+	lockpic="":notesel lockpic:noteload "lockpic.txt"//起動画面の写真//celload lockpic,4//ロック画面の壁紙
+
+	InstallSetting="":notesel InstallSetting:noteload "InstallSetting.txt"//初期設定が完了しているか取得 0=初期 1=設定済み
+	celload userpic,18//ユーザーアイコン
+	celload "loadbar1.png",35//ロードバー
+
+
+
+	//ゆっくり出るアニメーション
+	lockpicgmodeFirst=0//ロック画面の壁紙の透明度
+
+	repeat 32
+	
+	redraw 0
+	
+	//pos 0,0:gmode 3,,,lockpicgmodeFirst:celput 54//ロック画面の壁紙の表示
+	pos ginfo(20)/2-64,ginfo(21)/2-128:gmode 2:celput 18//ユーザー画像の表示
+	pos ginfo(20)/2-128,ginfo(21)/2+128:gmode 2:celput 35//ロードバー
+	
+	lockpicgmodeFirst=lockpicgmodeFirst+1//濃くしていくぅ
+	
+	redraw 1
+	await 8
+
+	loop
+
+	
+	font "超極細ゴシック",48
+
+	
+	
+	/*<<バージョンの見方>>
+	release x.y.z                  	|ソフトリリース時の最新バージョン x=ベース y=大型アップデート z=細かな修正
+	Alpha x.x.x.y.y.y				|alphaの最新バージョン x=日付け y=ベータバージョン(ベースとアップデート)
+	beta x.x.x.y.y               	|ベータアップデート
+	OpenSource x.x.x.y.y.y.z.z.z	|オープンソース版 z=リリース日
+
+	OSもどきの製作開始年は10歳です。
+	この次世代OS制作に取り掛かったのは12歳です。(2020)
+	良い思い出になりますように。
+
+	Material design iconsを使用しています。詳しくはLICENCE.txtをご覧ください
+	
+	*/
+
+	//font Noto Sans JP Light
+	
+	ver="Azalea OpenSource 2021/12/05 si1.10.5+2023/10/27"//バージョン
+	sysname2="あぜりあ One OpenSource-Project"
+	sysname=""+sysname2+"/"+ver+""//システムの名前
+
+	//font "超極細ゴシック",48:color 255,255,255:pos ginfo(20)/2-128,ginfo(21)/2+128-64:mes sysname2//タイトル？os名？の描画
+	sysfont//システムのフォントにする
+
+	
+
+
+	
+
+
+
+	
+	
+	defaultfps=16//defaultのシステムfps
+	taskbaron=1//タスクバーの下の画像を描画するかどうか 1=する 0=しない
+	defaultfont="Noto Sans JP Light"//defaultfont
+	lockpicgmode=256//lock画面の壁紙のgmode。初期値は256
+	sideon=1//サイドバーの表示をするかしないか。1=する 0=しない
+	sideposx=264//サイドバーの初期位置。
+	active="home"//アクティブなのは何かをまとめたもの。
+	active2=""//アクティブなのは何かを1フレーム遅れてまとめたもの。
+	rightclick=0//右クリックをしているかどうか。1=している 0=していない
+	sidepicnumber=0//サイドバーの写真を１番にするか２番にするか。1=2番 0=1番
+	defaulthomepic=0//壁紙のはどちらか。0=1番 1=2番
+	homepicx1=0//←↓壁紙の座標
+	homepicx2=ginfo(20)
+	sysdiri="":sysdiri=dirinfo(0)//通常のディレクトリの設定
+	dolockon=1//ロック画面を表示するかしないか
+	lockpicgmode=0//ロック画面の写真のgmode
+	lockpicposy=256//ロック画面のアイコンのy座標
+	settingmenuhighlight=48//ハイライトする設定画面のy座標
+	dialogposy=200//ダイアログのy座標
+	dialoggmode=0//ダイアログのgmode
+	taskberpos=0//タスクバーの位置 1=下 0=上
+	copyright="すかいあろー/2020-2023"//このシステムの制作者
+	shutdown=0//shutdown信号 0=しない 1=する
+	tasklocky=128//ロック時のタスクバーの座標
+	windowactive=""//アクティブなwindow
+	Notification=""//通知の内容
+	Notificationsize=2.0//通知のy座標の大きさ
+	dockon=1//ドックを表示する
+	//dockposx=171//dockの座標
+	dockposy=0//dockの座標(~24まで)
+	DGadgetSize=1//ガジェットの倍率
+	DGadgetGmode=150//ガジェットの濃さ
+	DarkTheme=1//ダークThemeかどうか(1=true 0=false)
+	CtrlPnName="No Title"//コントロールパネルのアイコンの名前
+	HomePicEaseSize=0.0//ホーム画面の背景画像の大きさ
+	DesktopClockon=0//デスクトップ時計を表示するかしないか 0=しない 1=する
+	SoundsMixOn=0//音量バーの表示/非表示
+	SoundsMicEase2=16//音量バーのアニメーション
+	GrassEffectOn=1//透明効果（グラスエフェクト）　2=リアルタイム 1=通常 0=無効
+	dim Ctrlgmode,64//コントロールパネルのボタンのID
+	DBM1=""//24*24ボタンの左側に文字を表示できるよ～
+	dim DBG1,256//ボタンの透過度（アニメーション）
+	dim DBO1,256//ボタンが押されたかどうか
+	dim SYSTEM_POWER_STATUS,3//バッテリー残量用
+	DeskSmooth=151//デスクトップ画像のぼかしの強さ
+	chr_str="あぜりあ":WinTit="あぜりあ_Window"//ウィンドウのタイトル
+	
+
+
+	//↓window関係の変数
+
+
+	//↓配列変数に
+	dim WinID,128//アプリのID
+	dim AppOn,128//表示するかしないかを代入
+	dim WinSizeX,128//windowの大きさ
+	dim WinSizeY,128//windowの大きさ
+	ddim WinGsize,128//windowの倍率（1時的なやつ。開いたときor閉じたときなど）
+	dim WinAct,128//アクティブかどうかを保存する
+	//↑配列変数に変換
+
+	repeat 128
+		WinSizeX(cnt)=512
+		WinSizeY(cnt)=512
+		WinGsize(cnt)=1.0
+		await 6
+	loop
+	
+	//↑window関係の変数
+	
+	
+	title sysname//タイトル描画
+*starting2
+	//ロード操作
+	//↓メモ帳など
+	username="":notesel username:noteload "username.txt"//ユーザーネーム
+	deskpic="":notesel deskpic:noteload "deskpic.txt"//デスクトップの写真1
+	deskpic2="":notesel deskpic2:noteload "deskpic2.txt"//デスクトップの写真2
+	
+	sidepic1="":notesel sidepic1:noteload "sidepic1.txt"//サイドバーの写真
+	sidepic2="":notesel sidepic2:noteload "sidepic2.txt"//サイドバーの写真
+	
+	chatback="":notesel chatback:noteload "chatback.txt"//チャット画面の後ろ
+	syspassword="":notesel syspassword:noteload "password.txt"//システムのパスワード
+	gamesscore="":notesel gamesscore:noteload "userscore.txt"//ゲームのスコア
+
+
+	
+
+	
+	//↓画像
+	//celload "taskbar.png",1//タスクバー
+	celload deskpic,2//ホーム画面の壁紙1
+	//(4は使用済み)
+	celload "click.png",5//クリック時のアニメーション
+	celload "click2.png",6//クリック時のアニメーション（24*24）
+	celload "sidebar.png",7//サイドバーのアイコン
+	celload "sidebar1.png",8//サイドバーの背景
+	celload "search.png",9//検索のアイコン
+	celload sidepic1,10//サイドバーの写真1
+	celload sidepic2,11//サイドバーの写真2
+	//celload "backpic.png",12//検索画面の背景
+	celload "power2.png",13//電源ボタンの画像
+	//celload "backpic2.png",14//検索画面の背景その２
+	celload "userpic3.png",15//ユーザーアイコン
+	celload "click3.png",16//クリック時のアニメーション(48*48)
+	//celload "startmenu.png",17//ユーザーメニューの背景
+	//(18は使用済み)
+	celload "chaticon.png",19//チャットアプリのアイコン
+	celload "click4.png",20//クリック時のアニメーション(64*64)
+	celload "close.png",21//windowを閉じるアイコン
+	celload "close2.png",22//windowを閉じるアイコンのアニメーション
+	celload "snap.png",23//windowのsnapボタン
+	celload "windowmenu.png",24//windowのボタン類の背景
+	celload deskpic2,25//ホーム画面の壁紙2
+	celload "chatmenu.png",26//チャットのサーバー選択
+	celload "chatmenu2.png",28//チャットの入力欄
+	//celload chatback,29//チャット画面の後ろ
+	celload "setting3.png",30//デバッグアプリのアイコン
+	celload "setting4.png",31//設定アプリのメニューバー
+	celload "click5.png",32//クリック時のアニメーション(256*64)
+	celload "userpic2.png",33//設定画面のユーザー項目
+	celload "lock icon.png",34//ロック画面のロックマーク
+	//(35は使用済み)
+	celload "info.png",36//設定画面のインフォ項目
+	celload "system icon.png",37//システムのアイコン(beta)
+	celload "musicapp.png",38//音楽アプリのアイコン
+	celload "musicmenu.png",39//音楽アプリのメニュー
+	celload "dialog.png",40//ダイアログの背景
+	celload "dialogmenu.png",41//ダイアログのwindowの背景
+	celload "dialogbutton.png",42//ダイアログのボタン
+	celload "dialogbutton2.png",43//ダイアログのボタンのアニメーション
+	celload "sidebar2.png",44//サイドバーの背景
+	celload "sidebar3.png",45//サイドバーの背景の小さい版
+	celload "sidebar5.png",47//ユーザー画像のタブ
+	buffer 49,ginfo(20),ginfo(21):gsel 0,2//黒い画像を作るためのバッファ
+	celload "window2.png",50//windowの画像
+	celload "window2back.png",51//windowの画像の背景
+	celload "startmenu2.png",52//スタートメニューの背景（白）
+	celload "click6.png",53//クリック時のアニメーション(ユーザーメニューなどの)
+	buffer 54,ginfo(20),ginfo(21)//デスクロップ画像のぼかしをするためのbuffer1
+	buffer 55,ginfo(20),ginfo(21)//デスクロップ画像のぼかしをするためのbuffer2
+	celload "windowmenu2.png",56//windowの上のメニュー
+	celload "windowmenu3.png",57//windowの上のメニューのポインター
+	celload "window3.png",58//windowの背景3
+	celload "usermenu2.png",59//usermenuの背景2
+	celload "dialogwhite.png",60//dialogの白い版
+	celload "unlock icon.png",61//ロック解除のアイコン
+	celload "snap2.png",62//下へ展開のアイコン
+	celload "taskbar4.png",63//タスクバーのドック
+	celload "startmenu2back.png",64//スタートメニューの背景
+	screen 65,ginfo(20),ginfo(21),2//イージング描画するためのwindow
+	screen 66,ginfo(20),ginfo(21),2//サイドバー描画するためのwindow
+	celload "startmenu.png",67//スタートメニューの背景（黒）
+	celload "click7.png",68//ロック解除のアニメーション
+	celload "click7dark.png",69//ロック解除のアニメーション（黒）
+	celload "whitetheme.png",70//ホワイトテーマのアイコン
+	celload "darktheme.png",71//ダークテーマのアイコン
+	celload "click8.png",72//コントロールパネルのクリックしたときのアニメーション
+	buffer 74,ginfo(20),1//影1を作るためのバッファ
+	celload "startmenuicon.png",76//スタートメニューのアイコン
+	celload "window2black.png",77//windowの画像のダークテーマ
+	celload "click9.png",78//クリック時のアニメーション（ユーザーネームの下）
+	celload "sounds0.png",79//音量調整のアイコン(0)
+	celload "soundsPic.png",80//音量調整の背景（白）
+	celload "soundsPicblack.png",81//音量調整の背景（黒）
+	celload "click10.png",82//タスクバーの時計のアニメーション
+	bgscr 83,128,128,2//壁紙を可変するためのwindow1
+	bgscr 84,128,128,2//壁紙を可変するためのwindow2
+	bgscr 85,ginfo(20),ginfo(21),2//windowを描画するためのwindow
+	celload "batteryFull.png",86//バッテリーがいっぱいなときのバッテリー表示
+	bgscr 87,128,128,//壁紙を可変するためのwindow1（ぼかし）
+	bgscr 88,128,128,//壁紙を可変するためのwindow2（ぼかし）
+	buffer 89,ginfo(20)-128,48*2//Dockを描画するためのバッファ！
+	celload "dockbackwhite.png",90//Dockを丸くするためのあれ
+	celload "dockbackblack.png",91//上の黒色バージョンだよ！
+	celload "dockbackwhite2.png",92//Dockを丸くするためのあれ2
+	celload "dockbackblack2.png",93//上の黒色バージョンだよ！2
+	buffer 94,ginfo(20),ginfo(21)//windowの黒/白の背景を作る！
+	celload "mouse1.png",95//テスト用マウスカーソル
+
+	cvbuffer 2,ginfo(20),ginfo(21)//リアルタイムスムージングをするときのバッファ
+
+	gsel 0,2
+	
+
+
+*starting3//起動時のいろんな処理をするラベル
+
+
+
+
+
+	//↓デスクトップ画像をいじる-------------------------------------------------
+
+
+	SmoothDesk//ぼかし処理をする
+	
+	gsel 83//描画先を専用windowに変更
+	pos 0,0:picload deskpic//画像を仮想windowに貼り付ける！（サイズ取得）
+	DeskPicture1X=ginfo(12):DeskPicture1Y=ginfo(13)//画像サイズを取得
+	screen 83,ginfo(20),ginfo(21),2,0,0//仮想windowのサイズをもとに戻す
+
+	color 0,0,0:boxf:gmode 0//塗りつぶし
+
+	//DeskPixX1:DeskPixY1=画像の座標
+		DeskPicGmode=double(ginfo(21))/double(DeskPicture1Y)//画像の倍率
+
+		DeskPixX1=(ginfo(20)-(double(DeskPicture1X)*double(DeskPicGmode)))/2//X座標
+		DeskPixY1=0//Y座標
+
+		pos DeskPixX1,DeskPixY1//コピる座標を計算する！
+	
+	celput 2,,DeskPicGmode,DeskPicGmode//画像をコピる
+
+	
+	gsel 87//ぼかし画像
+	screen 87,ginfo(20),ginfo(21),2,0,0//仮想windowのサイズをもとに戻す
+	color 0,0,0:boxf:gmode 0//塗りつぶし
+	pos DeskPixX1,DeskPixY1:celput 54,,DeskPicGmode,DeskPicGmode//画像をコピる
+	
+
+	
+
+	gsel 84//描画先を専用windowに変更
+	picload deskpic2//画像を仮想windowに貼り付ける！（サイズ取得）
+	DeskPicture2X=ginfo(12):DeskPicture2Y=ginfo(13)//画像サイズを取得
+	screen 84,ginfo(20),ginfo(21),2,0,0//仮想windowのサイズをもとに戻す
+
+	color 0,0,0:boxf:gmode 0//塗りつぶし
+
+	//DeskPixX1:DeskPixY1=画像の座標
+		DeskPicGmode2=double(ginfo(21))/double(DeskPicture2Y)//画像の倍率
+
+		DeskPixX2=(ginfo(20)-(double(DeskPicture2X)*double(DeskPicGmode2)))/2//X座標
+		DeskPixY2=0//Y座標
+
+		pos DeskPixX2,DeskPixY2//コピる座標を計算する！
+	
+	celput 25,,DeskPicGmode2,DeskPicGmode2//画像をコピる
+
+
+	gsel 88//ぼかし画像
+	screen 88,ginfo(20),ginfo(21),2,0,0//仮想windowのサイズをもとに戻す
+	color 0,0,0:boxf:gmode 0//塗りつぶし
+	pos DeskPixX2,DeskPixY2:celput 55,,DeskPicGmode2,DeskPicGmode2//画像をコピる
+	
+	
+
+
+	gsel 0//描画先を戻す
+	
+	
+	//↑デスクトップ画像をいじる-------------------------------------------------
+
+	gsel 49//真っ黒画像
+	color 0,0,0:boxf
+
+	gsel 74//影つくるよ
+	color 0,0,0:boxf
+	
+
+
+
+
+
+	//↓Dock作るよ-------------------------
+	gsel 89
+
+	docksizeX=ginfo(20)-128//DockのサイズX
+	dockposX=64//座標X
+	docksizeY=48//DockのサイズY
+	
+	//まずはライトテーマから。
+	color 255,255,255
+	boxf 0,0,docksizeX,docksizeY//描画
+	gmode 0:pos 0,0:celput 90//左の丸い縁を再現
+	pos docksizeX-48,0:celput 92//右の丸い縁
+
+
+
+	//そしてダークテーマ！
+	color 0,0,0
+	boxf 0,docksizeY,docksizeX,docksizeY+docksizeY//描画
+	gmode 0:pos 0,docksizeY:celput 91//左の丸い縁を再現
+	pos docksizeX-48,docksizeY:celput 93//右の丸い縁
+
+		
+	
+	
+	//↑Dock作るよ-------------------------
+
+
+
+
+
+
+	//処理完了
+	gsel 0
+	//↓だんだん暗くするアニメーション
+	repeat 32
+	pos 0,0:gmode 3,,,32:gcopy 49,0,0,ginfo(20),ginfo(21)//真っ暗な画像
+	await 8
+	loop
+	//↑だんだん暗くするアニメーション
+
+	//dolockon=0//ロック画面を表示するかしないか//開発者用
+
+
+	if InstallSetting=0:goto *InstallSetLv//Install処理をする変数-------------------------------------------------
+
+
+	
+	goto *mainloop//メインループへ（起動完了）
+
+	
+*function//関数置き場　使い方あってるのかな？
+
+
+	
+
+
+	//↓windowsを描画する関数
+	#deffunc WindowsDraw
+
+	
+
+
+	//WinTitSize=32//バーの大きさ
+	WinPosX(WinID)=128:WinPosY(WinID)=64//仮座標
+
+	
+
+	//↓Activeにするかどうかの設定
+
+
+
+	//↑
+
+
+
+	//↓キーの取得をする
+		
+		if (active2="WinID "+WinID+""){//Activeになっていたら
+			 winkey=syskey1//左クリックを取得
+			}
+
+		//キーの位置の取得をする
+		WinMouX=mousex-WinPosX(WinID)
+		WinMouY=mousey-WinPosY(WinID)-WinTitSize
+
+			if WinMouX>WinSizeX(WinID):WinMouX=-1:WinMouY=-1
+			//↑↓Windowのサイズより大きくなったら-1に設定する
+			if WinMouY>WinSizeY(WinID)-WinTitSize:WinMouX=-1:WinMouY=-1
+			
+			if WinMouX<0:WinMouX=-1:WinMouY=-1
+			//↑↓画面からはみ出しても-1に設定する
+			if WinMouY<0:WinMouX=-1:WinMouY=-1
+			
+	//↑キーの取得をする
+
+
+//処理完了
+
+
+
+
+	//先に背景画像を作る。
+		gsel 94//背景画像描画用のwindow(タイトルバーは含まないよ！)
+		redraw 0
+		color 255,255,255:boxf
+		if DarkTheme=1{
+			color 0,0,0:boxf 0,0,WinSizeX(WinID),WinTitSize}//タイトルバーだけテーマによって色を変える
+		redraw 1
+	//↑
+
+
+
+	
+	gsel 85:pos 0,0//描画先を変更
+	redraw 0:color 255,255,255:boxf
+
+		//↓windowの場所などを計算
+			
+		//↑windowの場所などを計算
+
+
+
+		//↓windowの背景を描画する
+			pos 0,WinTitSize*-1:gmode 0
+			gcopy 94,0,0,WinSizeX(WinID),WinSizeY(WinID)
+		//↑windowを描画する
+
+
+	pos 0,0
+	return
+	//↑windowsを描画する関数
+
+
+
+
+	/*
+	Windowを表示させたいときは、まずWindowsDraw→WindowsDraw2ではさみます。
+	間に表示させたいスクリプトを書いてくれれば勝手に切り抜いてくれます。
+	すべての解像度で正しく表示できるよう工夫してくださいね。
+	AppOn(WinID)=1//起動
+	(WinID)=アプリのID
+
+	WinSizeX(WinID),WinSizeY(WinID)=windowのサイズ
+	WinGsize(WinID)=表示倍率（起動したときのアニメーションなどに使う）
+	WinPosX(WinID),WinPosY(WinID)=windowのユーザーから見たときの座標　タイトルバーから
+	WinTitSize=タイトルバーの大きさのY座標
+	WinKey=クリックされたかどうか
+	WinMaxOn(WinID)=最大化されてるなら1 通常表示なら0
+	WinMouX,WinMouY=マウス座標ですな
+	WinTit=windowの名前
+	WinAct(WinID)=アクティブになっているかどうか
+	
+	*/
+	
+
+
+
+
+
+	//↓windowsを描画する関数（仕上げ処理）
+	#deffunc WindowsDraw2
+
+
+	
+
+	
+
+		//↓windowバーとか描画
+
+			//↓まずは背景
+			pos 0,WinTitSize
+			gmode:gcopy 85,0,0,WinSizeX(WinID),WinSizeY(WinID)//表示位置をずらす
+			
+			pos 0,0//座標を戻す
+			gmode//透過させる(coming soon)
+			gcopy 94,0,0,WinSizeX(WinID),WinTitSize//バーを描画
+
+
+			//↓イージング
+				gmode 3,,,128
+				pos 0,0
+				DEasingX1=WinPosX(WinID)
+				DEasingY1=WinPosY(WinID)
+				DEasingX2=WinSizeX(WinID)
+				DEasingY2=WinTitSize
+				DEasingGsel=85
+
+			DefaultEasing//←関数
+			//↑イージング
+			//↑背景完了！
+
+			//↓中身を書いていくよ
+
+
+			
+
+			if DarkTheme=0{color 0,0,0}else{color 255,255,255}
+			font "Noto Sans JP Light",16
+			pos ,0:chr_setpos=WinSizeX(WinID)/2,0:chr_str=WinTit:MesCenterPosX//タイトルを表示
+
+
+			//閉じるボタンなど
+
+				WinBaSp=8//ボタン同士の間隔
+				WinBaSi=14//ボタンの大きさ
+				color 200,200,200//アクティブじゃなかったときの色
+				
+				if (active2="WinID "+WinID+""):color 250,97,88
+				circle　WinBaSp,WinBaSp,WinBaSi+WinBaSp,WinBaSi+WinBaSp//閉じるボタン
+
+				if (active2="WinID "+WinID+""):color 253,186,45
+				circle　WinBaSi+WinBaSp*2,WinBaSp,WinBaSi*2+WinBaSp*2,WinBaSi+WinBaSp//最小化ボタン
+
+				if (active2="WinID "+WinID+""):color 40,200,68
+				circle　WinBaSi*2+WinBaSp*3,WinBaSp,WinBaSi*3+WinBaSp*3,WinBaSi+WinBaSp//最大化ボタン
+			//↑
+
+
+			//↑中身を書いていくよ
+			
+		//↑windowバーとか描画
+
+
+
+	redraw 1
+	gsel 0//描画先を戻す
+	
+
+	gmode 0//描画モードを指定
+	pos WinPosX(WinID),WinPosY(WinID)
+	if AppOn(WinID)=1{//表示するよ！
+
+			if WinWait(WinID)<=24{//起動直後だったら
+					setease 0.2,1.0,ease_quad_out//計算式を指定
+					
+					WinGSize(WinID)=geteasef(WinWait(WinID),24)
+				}
+			
+			if WinGSize(WinID)=1.0{
+				gcopy 85,0,0,WinSizeX(WinID),WinSizeY(WinID)//通常表示
+					}else{
+				GX=int(double(WinSizeX(WinID))*double(WinGsize(WinID))):GY=int(double(WinSizeY(WinID))*double(WinGsize(WinID)))//倍率計算
+				gzoom GX,GY,85,0,0,WinSizeX(WinID),WinSizeY(WinID),1//拡大/縮小表示
+
+				
+				}
+
+
+
+			
+
+			//↓タイトルバー関連の処理
+
+
+				//閉じるボタン
+				if (Winkey=1)and(mousex>WinPosX(WinID)+WinBaSp)and(mousey>WinPosY(WinID)+WinBaSp)and(mousex<WinPosX(WinID)+WinBaSi+WinBaSp)and(mousey<WinPosY(WinID)+WinBaSi+WinBaSp){AppOn(WinID)=0}
+				//閉じるボタン
+			
+			//↑タイトルバー関連の処理
+
+			
+
+
+
+
+			//↓Activeかそうではないかの判定
+			if (mousex>WinPosX(WinID))and(mousey>WinPosY(WinID))and(mousex<WinPosX(WinID)+WinSizeX(WinID))and(mousey<WinPosY(WinID)+WinSizeY(WinID)){
+				active="WinID "+WinID+"":WinAct(WinID)=1//Activeに設定
+			}
+
+			//↑Activeかそうではないかの判定
+
+
+			
+			if WinWait(WinID)<128:WinWait(WinID)=WinWait(WinID)+1//windowを立ち上げてからの時間
+		}else{
+			WinWait(WinID)=0//時間経過をリセットする
+		}
+		//仮想windowの内容をコピる
+	
+	return
+	//↑windowsのうえからアニメーションをかける関数
+
+
+
+
+	
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+	//↓イージング(グラスエフェクト)する関数
+	#deffunc DefaultEasing
+
+
+	/*
+	DefaultEasing=この関数の名前
+	DEasingX1=イージングする始点のX座標
+	DEasingY1=イージングする始点のY座標
+	DEasingX2=イージングする終点のX座標
+	DEasingY2=イージングする終点のY座標
+	DEasingGsel=イージング先windowID
+
+
+	↓コピペ用
+
+	//↓イージング
+	DEasingX1=X1
+	DEasingY1=Y1
+	DEasingX2=X2
+	DEasingY2=Y2
+	DEasingGsel=0
+
+	DefaultEasing//←関数
+	//↑イージング
+	
+	*/
+
+	if GrassEffectOn=0:return//もし無効化されてたらリターンする
+	if GrassEffectOn=1{//通常のぼかし処理
+	
+	
+		gsel 65//一時的に描画するためのwindowに操作先を変更
+		gmode 0
+
+		//↓ぼかし画像を描画
+		if homepicx1!ginfo(20){pos homepicx1,0:gcopy 87,0,0,ginfo(20),ginfo(21)}
+		if homepicx2!ginfo(20){pos homepicx2,0:gcopy 88,0,0,ginfo(20),ginfo(21)}
+		//↑ぼかし画像を描画
+	
+	
+		gsel DEasingGsel//操作先のwindowをデフォルトに
+		gcopy 65,DEasingX1,DEasingY1,DEasingX2,DEasingY2//ぼかしをかける
+	
+		gsel DEasingGsel:DEasingGsel=0//描画先を指定されたIDに直す
+	}
+
+	if GrassEffectOn=2{//リアルタイムスムージング（うまく動かず断念）
+
+
+		cvsel 2//ぼかしのためのバッファに移動
+		
+			gsel DEasingGsel:cvputimg//バッファに画面をコピる
+				cvsmooth CV_GAUSSIAN,DeskSmooth,DeskSmooth,,//ぼかす(激重)
+
+				gsel 65:color 0,0,0:boxf:cvgetimg//windowに移動
+				
+				gsel DEasingGsel//操作先のwindowをデフォルトに
+				gcopy 65,DEasingX1,DEasingY1,DEasingX2,DEasingY2//ぼかしをかける
+	
+				gsel DEasingGsel:DEasingGsel=0//描画先を指定されたIDに直す
+
+		
+		}
+				
+	
+	return
+	//↑イージングする関数
+
+
+
+
+
+	//↓中ガジェットを表示する関数1
+	#deffunc DGadgetM1
+
+	/*
+	変数一覧
+
+	DGadgetM=この関数の名前
+	DGadgetX=ガジェットのX座標
+	DGadgetY=ガジェットのY座標
+	DGadgetSize=ガジェットの倍率(デフォが1)
+	DGadgetGmode=ガジェットの濃さ(デフォが150)
+	DGadgetEasing=イージングするかしないか
+
+
+
+
+	DGadgetM1
+
+	内容を描画
+
+	DGadgetM2
+
+	
+	*/
+
+	gsel 66//一時的に描画するためのwindowに移動する
+
+	pos 0,0:gcopy 0,DGadgetX,DGadgetY,DGadgetX+256,DGadgetX+128//デフォwindowの画面をコピーする 
+	
+
+	//↓イージング
+	if DGadgetEasing=1{//イージングする(1)だった場合
+	
+		gmode 0:gsel 66:pos 0,0
+		DEasingX1=DGadgetX
+		DEasingY1=DGadgetY
+		DEasingX2=256+DGadgetX
+		DEasingY2=128+DGadgetY
+		DEasingGsel=66
+		DefaultEasing//←関数
+		
+	}
+	//↑イージング
+
+	gsel 66:pos 0,0
+	if DarkTheme=0{color 0,0,0:gmode 4,,,DGadgetGmode:celput 47//デバッグタブの背景（白）
+		}else{color 255,255,255:gmode 4,,,DGadgetGmode:celput 8}//デバッグタブの背景（黒）
+
+	//この関数を実行後に中身を記述する。その後DGadgetM2を実行する。
+
+	mousexside=DGadgetX-mousex
+	mouseyside=DGadgetY-mousey
+
+	gsel 66//一時的に描画するためのwindowに移動する
+	if DarkTheme=0{color 0,0,0}else{color 255,255,255}//文字色を変えておく
+	return
+	//↑中ガジェットを表示する関数1
+
+
+
+
+
+	//↓中ガジェットを表示する関数2
+	#deffunc DGadgetM2
+
+	gsel 0//デフォのwindowに描画を戻す
+
+	pos DGadgetX,DGadgetY
+	gmode 0
+	gcopy 66,0,0,256,128//仮windowに描画した内容をメインwindowに移す
+	
+	return
+	//↑中ガジェットを表示する関数2
+	
+
+
+
+
+
+	
+	
+	
+	stop
+
+
+
+
+
+
+#deffunc DButton2424ts
+	//OS標準のボタン(タスクバー用)を表示する関数(24*24) 文字は左側にしか表示できません。
+	//タスクバーに使うぐらいかな。他の用途は想定していないよ！
+
+	/*
+	DBX1			X座標
+	DBY1			Y座標
+	DBC1			画像ID
+	DBM1			なんか文字を描画する用(option-mes)
+	(DBT1			トグルにするかしないか。しない→0　する→1)【重要】トグル設定がバグっているので今の所トグルoffは無効化されています。ごめんなさい。
+	DBO1(BID)		ボタンが押されると1が代入されるよん
+
+	DButton2424ts//タスクバー用ボタンを表示するニダ
+	
+
+	//↓重要じゃない変数
+	DBG1(BID)		ボタンの透過度（アニメーション）
+	DBXS1			ボタンの画像サイズ
+	DBYS1			ボタンの画像サイズ
+	*/
+	DXS1=24:DYS1=24//ボタンサイズを変更
+	Temp_A=0:DBT1=1//仮置場の変数を0にしておくよ。トグル設定がバグっているから無効化しておくよ。
+	
+	//↓マウスを置いたときにアニメーション
+	if (mousex>=DBX1)and(mousey>=DBY1)and(mousex<=DBX1+DXS1)and(mousey<=DBY1+DYS1){
+		if DBG1(BID)<128{DBG1(BID)=DBG1(BID)+16}
+	}else{if DBG1(BID)>0{DBG1(BID)=DBG1(BID)-8}}
+	if DBG1(BID)<0:DBG1(BID)=0
+	pos DBX1,DBY1:color 0,0,0:gmode 4,,,DBG1(BID):celput 6
+	//↑マウスを置いたときにアニメーション
+	
+	//↓ボタンで切り替え
+	if (mousex>=DBX1)and(mousey>=DBY1)and(mousex<=DBX1+DXS1)and(mousey<=DBY1+DYS1)and(active!"lock")and(active2!"lock"){
+		if (DBT1=1)and(syskey1task=1){//トグルがオンになっていたら
+			Temp_A=1
+			if DBO1(BID)=0{
+				DBO1(BID)=1
+				}else{DBO1(BID)=0}
+			}
+		/*if (DBT1=0)and(syskey1task=1){//トグルがオフになっていたら
+			DBO1(BID)=1
+			}else{
+				if Temp_A!1{
+				DBO1(BID)=0
+					}
+				}*/
+		}
+
+	//DBT1/DBO1(BID)
+		
+	//↑ボタンで切り替え
+	pos DBX1,DBY1:gmode 2:celput DBC1//アイコンを描画
+
+	if DBM1!""{
+		pos DBX1-43,DBY1:color 255,255,255:font "Noto Sans JP Light",16:mes DBM1
+		}
+
+	DBM1=""//文字の内容をリセット
+	
+	return
+
+
+
+
+
+
+#deffunc DeskPicDraw
+//デスクトップの画像を表示するための関数
+
+
+	if dolockon=0{//もしロック画面が解除されたら
+		if DeskPicDES<32{DeskPicDES=DeskPicDES+1}//カウントする
+		setease 1.50,1.00,ease_cubic_out
+		DeskPicDEG=geteasef(DeskPicDES,32)//倍率を取得
+		
+		}else{
+			DeskPicDES=0
+			}
+
+
+	gmode 0
+
+
+	
+	DeskPicSX=double(ginfo(20))*DeskPicDEG//大きさを計算するよ！
+	DeskPicSY=double(ginfo(21))*DeskPicDEG
+	
+	pos Temp_B+((ginfo(20)-DeskPicSX)/2),((ginfo(21)-DeskPicSY)/2)//座標計算
+	
+	
+	gzoom DeskPicSX,DeskPicSY,Temp_A,0,0,ginfo(20),ginfo(21),0//描画！
+
+	
+	//pos Temp_B,0
+	//gcopy Temp_A,0,0,ginfo(20),ginfo(21)//描画！
+	
+	return
+
+
+#deffunc MesCenterPos
+//文字の中心座標を求め、描画する関数
+//chr_setpos=0,0:chr_str="":MesCenterPos
+	dim size, 2
+	GetTextExtentPoint32 hdc, varptr(chr_str) ,strlen(chr_str), varptr(size)
+	pos chr_setpos(0)-size(0)/2,chr_setpos(1)-size(1)/2:mes chr_str//文字！
+
+return
+
+
+
+#deffunc MesCenterPosX
+//文字の中心座標を求め、描画する関数のX座標だけ
+//pos ,:chr_setpos=0,0:chr_str="":MesCenterPosX
+	dim size, 2
+	GetTextExtentPoint32 hdc, varptr(chr_str) ,strlen(chr_str), varptr(size)
+	pos chr_setpos(0)-size(0)/2,ginfo_cy:mes chr_str//文字！
+
+return
+
+
+
+#deffunc MesCenterPosY
+//文字の中心座標を求め、描画する関数のY座標だけ
+//pos ,:chr_setpos=0,0:chr_str="":MesCenterPosY
+	dim size, 2
+	GetTextExtentPoint32 hdc, varptr(chr_str) ,strlen(chr_str), varptr(size)
+	pos ginfo_cx,chr_setpos(1)-size(1)/2:mes chr_str//文字！
+
+return
+
+
+
+#deffunc BuInstall1
+//主にOSインストール時に使うボタン
+
+return
+
+
+#deffunc SmoothDesk
+//デスクトップ画像をぼかす関数
+	
+
+	DeskSmooth | 1//偶数変換
+
+	//画像1
+
+		cvreset:cvload deskpic,0//画像を読む+バッファリセット
+		cvsmooth CV_GAUSSIAN,DeskSmooth,DeskSmooth,,0//ぼかす
+		gsel 54:pos 0,0
+		cvgetimg 0,1//画像を転送
+
+	//画像2
+
+		cvreset:cvload deskpic2,1//画像を読む+バッファリセット
+		cvsmooth CV_GAUSSIAN,DeskSmooth,DeskSmooth,,1//ぼかす
+		gsel 55:pos 0,0
+		cvgetimg 1,1//画像を転送
+
+	gsel 0
+	
+return
+
+
+
+
+
+
+/*
+*DeskPicEdit//デスクトップの画像のサイズを可変するラベル
+
+	
+	gsel 83//描画先を専用windowに変更
+	redraw 0
+	
+	
+	
+	
+	redraw 1
+	
+
+
+	gsel 84//描画先を専用windowに変更
+	redraw 0
+	
+	
+	
+	
+	redraw 1
+	
+
+
+		
+	DeskPicture1X
+	DeskPicture1Y
+	DeskPicture2X
+	DeskPicture2Y
+	
+	画像サイズを取得
+		
+
+
+	gsel 0//windowを戻す
+	return
+*/
+
+
+
+
+
+
+*InstallSetLv//初期設定をするラベル
+
+	dolockon=0
+	
+	redraw 0
+	//InstallGmodeEase1(InstallGmodeEaseGet1)=windowが上からひゅんっってなるイージングをするための変数
+
+	
+	if InstallGmode1<256:InstallGmode1=InstallGmode1+16//だんだん背景を明るくする
+	pos 0,0:gmode 3,,,InstallGmode1:celput 54//背景画像描画
+	
+	if InstallGmodeEase1<16{InstallGmodeEase1=InstallGmodeEase1+1}//イージングのための変数
+	setease -64,0,ease_cubic_out//式を指定
+	InstallGmodeEaseGet1=getease(InstallGmodeEase1,16)//取得
+	pos ginfo(20)/2-332-InstallGmodeEaseGet1,ginfo(21)/2-249:color 0,0,0:gmode 4,,,InstallGmode1:celput 50//下のwindow
+
+	pos ginfo(20)/2-332-InstallGmodeEaseGet1,ginfo(21)/2-249:gmode 2:celput 37
+	font "超極細ゴシック",32:mes ""+sysname2+""
+	font "Noto Sans JP Light",16:color 0,0,0:mes ver:mes "このソフトウェアはMITライセンスで公開された\nAzalea-One-OpenSource-Projectの一部です。"
+	mes "\n\nEnterキーを入力して初期設定を終了"
+
+	
+		
+
+
+
+
+	font "Noto Sans JP Light",16:color 255,255,255:pos 0,0:mes ""+Sysname+""//バージョンを左上に
+
+
+
+
+	//↓臨時:エンターキーでログイン
+	getkey key,13
+	if key=1{
+		InstallSetting="1":notesel InstallSetting:notesave "InstallSetting.txt"//初期設定完了
+		goto *mainloop
+		}
+	//↑臨時
+
+	
+	redraw 1:await 16:goto *InstallSetLv//ループ	
+	stop
+
+
+
+
+	
+*mainloop
+	//メインループ
+	redraw 0:color 0,0,0:boxf:active=""//描画を停止、画面を塗りつぶす、activeウィンドウ初期化
+	
+	gosub *systemloop//システムの操作ラベル
+	gosub *homeapp//ホーム画面
+	
+	
+
+	gosub *apps//アプリの統合制御
+	
+	
+	gosub *dialoglabel//レガシーなダイアログ
+	gosub *usermenu//ユーザーメニュー
+	gosub *sideapp//サイドバーアプリ
+	gosub *SoundsMix//音量調節するやつ
+	gosub *taskbar//タスクバー
+	gosub *reallylock//ロック
+	gosub *rightclicks//右クリックしたときの挙動
+	gosub *sysshutdown//シャットダウンする
+
+	gosub *systemloop2//システムの操作ラベルその2
+	
+	redraw 1:await defaultfps//描画を再開、+defaultfps+ms待つ（fps）
+	goto *mainloop
+	//メインループ終了
+
+
+
+
+	
+*systemloop
+	//時間の取得----------------------------------------------------------------------------------------------------------------------
+		timedata=strf("%02d:", gettime(4)):timedata+=strf("%02d:", gettime(5)):timedata+=strf("%02d", gettime(6))
+		//↓秒がない版
+		timedatams = strf("%02d:", gettime(4))
+		timedatams += strf("%02d", gettime(5))
+		//↓曜日、日
+		timeday="Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."
+		timedays=""+gettime(0)+"."+gettime(1)+"."+gettime(3)+"("+timeday.gettime(2)+")"
+		//↓時間帯の取得
+		if gettime(4)<=23:timeset=0
+		if gettime(4)<18:timeset=2
+		if gettime(4)<12:timeset=1
+		if gettime(4)<4:timeset=0
+		//↑時間帯の取得
+		//timedata=時+分+秒 timedatams=時+分 timedays=年+月+日+曜日
+
+
+		//一定時間ごとにバッテリー残量取得
+		PowerS=PowerS-1
+		if PowerS<=0{
+			GetSystemPowerStatus varptr (SYSTEM_POWER_STATUS)
+			PowerS=256
+			if peek(SYSTEM_POWER_STATUS.0,2)!255{
+				SysBattery=""+peek(SYSTEM_POWER_STATUS.0,2)+" %"
+			}else{
+				SysBattery="- %"
+				}
+		}
+		
+
+		//↓キーの取得
+		stick syskey//システムのクリック感知
+		if syskey&256{if mousey>24{syskey1=1}}else{syskey1=0}//左クリック感知
+		if syskey&256{syskey1task=1}else{syskey1task=0}//タスクバー用の左クリック感知
+		//↑キーの取得
+		
+		return
+
+
+
+
+		
+*systemloop2
+	//システムの操作ラベルその2
+	active2=active//アクティブのウィンドウを1フレーム遅れて表示する
+	//*
+	pos 0,ginfo(21)-128
+	color 255,255,255:font "Noto Sans JP Light",20
+	mes ver
+	mes copyright
+	font "Noto Sans JP Light",16
+	mes "このソフトウェアはMITライセンスで公開された\nAzalea-One-OpenSource-Projectの一部です。"
+	//mes "投稿主チャンネル:https://www.youtube.com/channel/UCU5xDMYjpH_hsgyRCZIFF4Q"
+	
+	color 255,0,0:pos mousex-12,mousey-12:gmode 4,,,128:celput 95//マウスカーソルを表示
+
+	//pos 0,0
+	//color 255,255,255:font "ＭＳゴシック",64
+	//mes WindowGmode+WindowGmodeG2
+
+	//*/
+	
+
+	return
+
+
+
+
+
+
+
+*OSError
+	gsel 0:cls 4
+	sysfont:color 0,106,182:mes "An unexpected error has occurred."
+	wait 512:end
+	stop
+
+
+
+*apps
+	gosub *settingapp
+	gosub *dialogtestapp
+	return
+
+
+
+
+*sysshutdown//シャットダウンの処理
+	if shutdown!1:return//シャットダウンするという信号が出ていないときはリターンする
+
+	redraw 1//描画をオンにする。メインループを抜ける
+
+		chr_str="Shutting down..."
+		dim size, 2
+		GetTextExtentPoint32 hdc, varptr(chr_str) ,strlen(chr_str), varptr(size)
+		chr_setpos=ginfo(20)/2, ginfo(21)/2 //描画する文字列の中心座標
+
+	//↑シャットダウンしていますの文字の座標を計算
+
+	
+	
+
+	repeat 128
+	redraw 0
+		shutdownwait=shutdownwait+2
+		gmode 3,,,shutdownwait:pos 0,0:gcopy 49,0,0,ginfo(20),ginfo(21)//画面をだんだん暗くする
+	redraw 1
+		await 8
+	loop
+
+	shutdownwait=0//gmodeをリセット
+	
+	repeat 64
+	redraw 0
+		shutdownwait=shutdownwait+2
+		color 0,0,0:boxf:color 255,255,255
+		gmode 3,,,shutdownwait:pos 0,0:celput 54//背景をだんだん入れていく
+		font "Noto Sans JP Light",16,16
+		color shutdownwait*2-1,shutdownwait*2-1,shutdownwait*2-1
+		pos chr_setpos(0)-size(0)/2, chr_setpos(1)-size(1)/2 : mes chr_str//"シャットダウンしています"という文
+		/*//↓時刻
+		color 255,255,255
+		pos ginfo(20)/20,ginfo(21)-ginfo(21)/3
+		//font "03スマートフォントUI",128,16
+		font "超極細ゴシック",160
+		mes timedatams
+		pos ginfo(20)/20+25,
+		font "超極細ゴシック",32,16
+		mes timedays
+		//↑*/
+		gsel 0
+	redraw 1
+		await 8
+	loop
+	
+	
+	
+	await 900//待機時間を入れる
+	end
+	stop
+
+
+
+	
+*taskbar
+	//タスクバー
+
+
+	//タスクバーの座標計算
+	if taskberpos=0{
+		taskberposy=0+tasklocky*-1
+		}//上に設定されたいたら座標を0に
+		
+	if taskberpos=1{
+		taskberposy=ginfo(21)-24+tasklocky
+		}//下に設定されていたら座標を1366-24に
+
+
+
+
+
+
+		
+	//タスクバーの座標計算
+
+	//↓タスクバーの背景
+
+	
+
+	
+	if taskbaron=1{
+		//↓イージング
+		
+		pos 0,taskberposy:gmode 0
+		DEasingX1=0
+		DEasingY1=taskberposy
+		DEasingX2=ginfo(20)
+		DEasingY2=24
+		DefaultEasing//←関数
+
+		repeat 12//かげ～～～
+			gmode 3,,,36-((cnt)*3)///暗さを設定
+			pos 0,taskberposy+24+cnt:celput 74//影をつける
+		loop
+
+		
+	//↑イージング
+	}
+
+	//↑タスクバーの背景
+
+
+
+	//タスクバーアイコン
+
+	TaSi=24//アイコンの大きさ
+	TaSp=6//アイコン同士の間隔
+	TaTo=TaSi+TaSp//間隔の合計
+	
+	
+	BID=0//サイドバー/表示・非表示切り替えボタン
+	DBX1=ginfo(20)-TaTo
+	DBY1=taskberposy
+	DBC1=7
+	
+	DBO1(BID)=sideon:DButton2424ts:sideon=DBO1(BID)//タスクバー用ボタンを表示するニダ
+
+	
+	BID=1//壁紙切り替えのボタン
+	DBX1=ginfo(20)-TaTo*2
+	DBY1=taskberposy
+	DBC1=23
+	
+	DBO1(BID)=defaulthomepic:DButton2424ts:defaulthomepic=DBO1(BID)//タスクバー用ボタンを表示するニダ
+
+
+
+	
+	//↓マウスを置いたときにアニメーション(音量調整)2
+	if (mousex>ginfo(20)-TaTo*3)and(mousey>0+taskberposy)and(mousex<ginfo(20)-TaTo*3+TaSi)and(mousey<24+taskberposy){
+		if taskgmode5<128{taskgmode5=taskgmode5+16}
+	}else{if taskgmode5>0{taskgmode5=taskgmode5-8}}
+	if taskgmode5<0:taskgmode5=0
+	pos ginfo(20)-TaTo*3,0+taskberposy:color 0,0,0:gmode 4,,,taskgmode5-(256-taskgmode5A):celput 6
+	//↑マウスを置いたときにアニメーション(音量調整)2
+	//↓ボタンで切り替え
+	if (mousex>ginfo(20)-TaTo*3)and(mousey>0+taskberposy)and(mousex<ginfo(20)-TaTo*3+TaSi)and(mousey<24+taskberposy)and(active2!"lock")and(active!"lock"){
+	if syskey1task=1{
+			if SoundsMixOn=1{
+				SoundsMixOn=0
+				}else{SoundsMixOn=1}
+			}
+	}
+	//↑ボタンで切り替え
+
+	if SoundsMixOn=1{if taskgmode5A>0{taskgmode5A=taskgmode5A-16}}else{if taskgmode5A<256{taskgmode5A=taskgmode5A+16}}//開いている場合非表示にする
+	pos ginfo(20)-TaTo*3,0+taskberposy:color 0,0,0:gmode 4,,,taskgmode5A:celput 79//音量調整のアイコン
+
+
+
+	BID=3//ID
+	DBX1=ginfo(20)-TaTo*4
+	DBY1=taskberposy
+	DBC1=86
+	DBM1=SysBattery//バッテリー残量表示
+	
+	DButton2424ts//タスクバー用ボタンを表示するニダ
+
+
+
+	BID=4//検索ボタン
+	DBX1=24
+	DBY1=taskberposy
+	DBC1=9
+	
+	DButton2424ts//タスクバー用ボタンを表示するニダ
+
+
+	
+	BID=5//ユーザーボタン
+	DBX1=0
+	DBY1=taskberposy
+	DBC1=76
+	
+	DBO1(BID)=usermenuon:DButton2424ts:usermenuon=DBO1(BID)//タスクバー用ボタンを表示するニダ
+
+
+
+
+	//タスクバーアイコン
+
+
+
+
+	font "Noto Sans JP Light",16+taskberposy:color 255,255,255
+	pos 0,taskberposy:chr_setpos=ginfo(20)/2,0:chr_str=""+timedays+" "+timedatams+"":MesCenterPosX//日付と時刻
+
+
+	//↓ドック
+
+	/*
+	dockon     =      1=表示する 0=非表示
+	dockposx,dockposy=dockの座標
+	dockgmode     =   dockの透過率
+	*/
+
+
+		//↓後ろのぼかし処理
+		
+		gmode 0//gmodeの設定
+		pos dockposX,ginfo(21)-docksizeY+dockposy-2+tasklocky
+
+		//↓イージング
+		DEasingX1=dockposX
+		DEasingY1=ginfo(21)-docksizeY+dockposy-2+tasklocky
+		DEasingX2=docksizeX
+		DEasingY2=docksizeY
+		DEasingGsel=0
+
+		DefaultEasing//←関数
+		//↑イージング
+	
+
+		if DarkTheme=0{//テーマに合わせて背景描画
+			color 0,0,0:gmode 4,,,150
+			gcopy 89,0,0,docksizeX,docksizeY
+			}else{
+			color 255,255,255:gmode 4,,,150
+			gcopy 89,0,docksizeY,docksizeX,docksizeY+docksizeY
+			}
+		
+	
+	//↑ドック
+	return
+
+
+*SoundsMix//音量調節するやつ
+	//SoundsMicEaseX=イージングの座標
+
+	if taskberposy!0:return//ロック画面のアニメーション中はリターンして表示しない
+
+
+
+	if SoundsMixOn=0{//閉じる処理
+		SoundsMicEase1=0//開くときのアニメーションを0に
+
+		setease 0,64,ease_cubic_out//アニメーションを設定
+		if SoundsMicEase2<16{SoundsMicEase2=SoundsMicEase2+1}
+		SoundsMicEaseX=getease(SoundsMicEase2,16)//取得
+
+		//↓イージング
+		pos ginfo(20)-256,24+10-SoundsMicEaseX
+		gmode 0
+		DEasingX1=ginfo(20)-256
+		DEasingY1=24+10-SoundsMicEaseX
+		DEasingX2=256
+		DEasingY2=48
+		DEasingGsel=0
+
+		DefaultEasing//←関数
+		//↑イージング
+		
+		pos ginfo(20)-256,24+10-SoundsMicEaseX//上にタスクバーがあったとき用だぜ
+		
+		gmode 4,,,128-SoundsMicEase2*8
+		if (SoundsMicEase2<16){if DarkTheme=0{color 0,0,0:celput 80}else{color 255,255,255:celput 81}
+			}//背景を描画
+
+		pos ginfo(20)-256+12,24+10+12-SoundsMicEaseX:color 0,0,0:gmode 4,,,256-SoundsMicEase2*16:celput 79//音量調整のアイコンを表示
+
+		
+		}else{//開く処理
+
+		
+		Active="SoundsMix"//Activeに
+		SoundsMicEase2=0//閉じるときのアニメーションを0に
+
+		setease 64,0,ease_cubic_out//アニメーションを設定
+		if SoundsMicEase1<16{SoundsMicEase1=SoundsMicEase1+1}
+		SoundsMicEaseX=getease(SoundsMicEase1,16)//取得
+
+		SoundsMicEaseCel=(32.0-double(SoundsMicEaseX))/32.0//倍率
+
+		//↓イージング
+		pos ginfo(20)-256+int(128.0*(1.0-SoundsMicEaseCel)),24+10-SoundsMicEaseX
+		gmode 0
+		DEasingX1=ginfo(20)-256
+		DEasingY1=24+10-SoundsMicEaseX
+		DEasingX2=int(256*SoundsMicEaseCel)
+		DEasingY2=int(48*SoundsMicEaseCel)
+		DEasingGsel=0
+
+		DefaultEasing//←関数
+		//↑イージング
+		
+		pos ginfo(20)-256+int(128.0*(1.0-SoundsMicEaseCel)),24+10-SoundsMicEaseX//上にタスクバーがあったとき用だぜ
+		
+		gmode 4,,,SoundsMicEase1*8
+		if DarkTheme=0{color 0,0,0:celput 80,,SoundsMicEaseCel,SoundsMicEaseCel}else{color 255,255,255:celput 81,,SoundsMicEaseCel,SoundsMicEaseCel}//背景を描画
+
+		pos ginfo(20)-256+12,24+10+12-SoundsMicEaseX:color 0,0,0:gmode 4,,,SoundsMicEase1*16:celput 79//音量調整のアイコンを表示
+		color 255,255,255:mes int(128.0*(1.0-SoundsMicEaseCel))
+
+		
+
+		//↓別のところをクリックしたら閉じる
+		if (syskey1task=1){
+				if (mousex>ginfo(20)-256+SoundsMicEaseX)and(mousey>24+10)and(mousex<ginfo(20)-256+SoundsMicEaseX+256)and(mousey<24+10+48){}else{//別のところをクリックしていたら
+					if (mousex>ginfo(20)-TaTo*3)and(mousey>0+taskberposy)and(mousex<ginfo(20)-TaTo*3+TaSi)and(mousey<24+taskberposy){}else{SoundsMixOn=0}}
+		}
+		//↑
+	}
+	return
+
+
+	
+*homeapp
+	active="home"
+	
+	//ホーム画面
+
+	//↓壁紙の変更
+	//HomePicEas=イージング用の経過時間
+	
+	
+	//homepicx1=写真1の座標 homepicx2=写真2の座標
+	
+	if (defaulthomepic=0){//もし写真1だったら
+		homepicx1=homepicx1-1
+		setease ginfo(12),0,ease_quad_out//計算式を指定
+		if HomePicEas<32:HomePicEas=HomePicEas+1//時間経過
+
+		
+		homepicx1=getease(HomePicEas,32)//取得
+		}
+	if (defaulthomepic=1){//もし写真2だったら
+		setease 0,ginfo(12),ease_quad_out//計算式を指定
+		if HomePicEas>0:HomePicEas=HomePicEas-1//時間経過
+
+		
+		homepicx1=getease(32-HomePicEas,32)//取得
+		}
+
+
+	homepicx2=homepicx1-ginfo(20)//homepicx2の設定
+		
+	if homepicx1>ginfo(20):homepicx1=ginfo(20)
+	if homepicx1<-1*ginfo(20):homepicx1=-1*ginfo(20)
+	if homepicx2>ginfo(20):homepicx2=ginfo(20)
+	if homepicx2<-1*ginfo(20):homepicx2=-1*ginfo(20)
+
+	
+
+	if (homepicx1!ginfo(20))and(homepicx2!0){
+		Temp_A=83//ID
+		Temp_B=homepicx1//座標
+		DeskPicDraw//関数
+		}
+		
+	if (homepicx2!ginfo(20))and(homepicx1!0){
+		Temp_A=84
+		Temp_B=homepicx2//gmode 0:pos Temp_B,0:gcopy Temp_A,0,0,ginfo(20),ginfo(21)
+		DeskPicDraw
+		}
+	
+	//↑壁紙の変更
+
+
+
+	//デスクトップ時計
+	if DesktopClockon=1{//表示するになっていたら
+	
+		//↓時刻
+		color 255,255,255
+		pos ginfo(20)-512,512
+		//font "03スマートフォントUI",128,16
+		font "超極細ゴシック",160
+		mes timedatams
+		line ginfo(20)-512,512+155,ginfo(20)-64,512+155
+		pos ginfo(20)-512+25,
+		font "超極細ゴシック",32,16
+		mes timedays
+	}
+	
+	//↑
+
+
+
+
+
+
+
+
+	//↓アイコンの設置 homegmode=それぞれのgmode
+	if taskberpos=0{y=24}else{y=0}
+
+
+
+
+	//設定アプリ
+	//↓マウスを置いたときにアニメーション(設定アプリ)
+	if (mousex>=0)and(mousey>=y)and(mousex<=64)and(mousey<=y+64){
+		if homegmode1<64{homegmode1=homegmode1+16}
+	}else{if homegmode1>0{homegmode1=homegmode1-8}}
+	if homegmode1<0:homegmode1=0
+	pos 0,y:color 0,0,0:gmode 4,,,homegmode1:celput 20
+	//↑マウスを置いたときにアニメーション(設定アプリ)
+	pos 0,y:gmode 2:celput 30//設定アプリのアイコン
+	color 255,255,255:font "Noto Sans JP Light",12,16:pos 0,64+y-16:mes "Setting"
+
+	//↓設定アプリを出す
+	if (active="home")and(active2="home")and(mousex>=0)and(mousey>=y)and(mousex<=64)and(mousey<=64+y){
+	if syskey1=1{
+				WinID=1//設定アプリのIDを打ち込む
+				AppOn(WinID)=1//起動
+			}
+	}
+	//↑設定アプリを出す
+	
+	
+	//↑設定アプリ
+
+
+
+	
+	
+	return
+
+	
+
+*sideapp
+	
+	if sideon=0{
+		//sideposxUp=集合するように表示するアニメーション
+
+
+		setease 0,128,ease_quartic_out//上のウィジェットから順番に出すアニメーションの計算式を設定
+		sideposxUp=getease(sideposxloop1,32)//取得
+
+		
+		setease 0.0,264.0,ease_quartic_out//計算式を設定
+		sideposxon0=getease(sideposxloop1,32)//取得 sideposxon0...一時的なログ置き場。
+		
+		if sideposxloop1<32{sideposxloop1=sideposxloop1+1//時間経過
+		sideposx=263-sideposxon0}//数を引いて反対の数を出す
+		}else{sideposxloop1=0}//時間経過をリセット
+
+	
+
+
+			
+	if sideon=1{
+		
+		setease 0,264,ease_quartic_out//計算式を設定
+		sideposx=getease(sideposxloop2,32)//取得
+
+		setease 128,0,ease_quartic_out//上のウィジェットから順番に出すアニメーションの計算式を設定
+		sideposxUp=getease(sideposxloop2,32)//取得
+		
+		if sideposxloop2<32{sideposxloop2=sideposxloop2+1}//時間経過
+			}else{sideposxloop2=0}//時間経過をリセット
+
+		
+
+
+
+			
+	//↑サイドバーのアニメーション
+	if sideposx>264:sideposx=264
+	if sideposx<0:sideposx=0//↑←救済措置
+	
+
+	//↓Activeなときスクロールする
+	if (sideon=1)and(mousex>ginfo(20)-264){
+		sideposy1=sideposy1+mousew
+	}
+	//↑アクティブな時だけスクロールする
+	
+	//sideposy=サイドバーの座標、sideposy1=代入されたホイールの動き(動きを滑らかにするため)
+	
+	//↓スクロール処理を滑らかに
+
+
+	if (sideposy1>0){
+		sideposy=sideposy+32
+		sideposy1=sideposy1-32
+		
+		}
+	
+	if (sideposy1<0){
+		sideposy=sideposy-32
+		sideposy1=sideposy1+32
+		
+		}
+	//↑
+	
+	
+	if sideposy<0{
+		sideposy=sideposy+20
+		}//↓↑マウスホイールが行き過ぎたとき元に戻す
+	if sideposy>-512{
+		sideposy=sideposy-20
+		}
+	
+	
+	//↓時刻の表示----------------------------------------------------------------
+
+
+	//↓影
+	/*
+	
+	pos 1366-sideposx+1,sideposy+64+1
+	color 128,128,128
+	font "03スマートフォントUI",64,16
+	mes timedatams
+	pos 1366-sideposx+12+1,
+	font "03スマートフォントUI",16,16
+	mes timedays
+	
+	//↑影
+	*/
+	if dolockon=0{//もしロック画面が表示されていなかったら
+		pos ginfo(20)-sideposx,sideposy+32
+		color 255,255,255
+		font "Noto Sans JP Light",64,16
+		mes timedatams
+		pos ginfo(20)-sideposx+12,
+		font "Noto Sans JP Light",16,16
+		mes timedays
+	}
+
+	//tasklockyはなんか上に動かすやつ
+	//↑-----------------------------------------------------------------------
+	
+	//↓デバッグタブ----------------------------------------------------------------------------------------------------------------------
+
+	DGadgetX=ginfo(20)-sideposx//+(sideposxUp)
+	DGadgetY=sideposy+144+8+(sideposxUp)
+	DGadgetSize=1
+	DGadgetGmode=150
+	DGadgetEasing=1
+	
+	DGadgetM1//関数
+	
+	font "Noto Sans JP Light",16,16:pos 0,0
+	mes "<<debug tab>>":mes "Active/"+active+" and "+active2+""//デバッグタブの中身
+	mes "SystemVersion/\n "+ver+"\nsyskey/"+syskey+"\nめにゅーのY"+usermenuy+""
+	
+	DGadgetM2//関数
+
+	//↑デバッグタブ---------------------------------------
+	
+	//↓写真タブ----------------------------------------------------------------------------------------------------------------------
+
+	DGadgetX=ginfo(20)-sideposx//+(sideposxUp*2)
+	DGadgetY=sideposy+144+8+128+8+(sideposxUp*2)
+	DGadgetSize=1
+	DGadgetGmode=150
+	DGadgetEasing=1
+	
+	DGadgetM1//関数
+	
+	//↓クリックで写真の切り替え
+	if syskey1=1{
+		if (sideon=1)and(mousexside>0)and(mouseyside>0)and(mousexside<256)and(mouseyside<128){
+			if sidepicnumber=1{
+				sidepicnumber=0
+				}else{
+					sidepicnumber=1
+					}
+			}
+		}
+	//↑クリックで写真の切り替え
+	
+	if sidepicnumber=0{//もし写真1が選択されていたら
+		if sidepicgmode1<256{
+			sidepicgmode1=sidepicgmode1+4
+			}//写真１のgmodeが256より小さければ4を足す
+		if sidepicgmode1>256:sidepicgmode1=256//オーバーフローしたときの救済措置
+		sidepicgmode2=256-sidepicgmode1//2 の gmodeは 256 から 1 の gmode を引いた数
+		gmode 2
+		if sidepicgmode1!256{color 0,0,0:gmode 4,,,sidepicgmode1}//256じゃなかったら透過させる
+		pos 8,7//pos指定
+		celput 10//写真１描画
+		if sidepicgmode2!0{color 0,0,0:gmode 4,,,sidepicgmode2:pos 8,7:celput 11}
+		//写真2のgmodeが0じゃなければ透過させて描画
+		//僕の独り言をよく見つけたね...まあこれ自分しか見ないけどね
+		//あ、そろそろ寝たほうがいいよ！
+		}
+	
+	if sidepicnumber=1{
+		if sidepicgmode1>0{
+			sidepicgmode1=sidepicgmode1-4
+			}//写真１のgmodeが0より大きければ4を引く
+		if sidepicgmode1<0:sidepicgmode1=0//アンダーフローしたときの救済措置
+		sidepicgmode2=256-sidepicgmode1//2 の gmodeは 256 から 1 の gmode を引いた数
+		gmode 2
+		if sidepicgmode2!256{color 0,0,0:gmode 4,,,sidepicgmode2}//256じゃなかったら透過させる
+		pos 8,7//pos指定
+		celput 11//写真2描画
+		if sidepicgmode1!0{color 0,0,0:gmode 4,,,sidepicgmode1:pos 8,7:celput 10}
+		//写真2のgmodeが0じゃなければ透過させて描画
+		}
+	
+	
+	//sidepicgmode1 写真１のgmode
+	//sidepicgmode2 写真２のgmode
+	//sidepicnumber 写真 0 or 1(1 or 2)
+
+	DGadgetM2//関数
+	
+	//↑写真タブ----------------------------------------------------------------------------------------------------------------------
+
+
+	/*
+	//↓タブ----------------------------------------------------------------------------------------------------------------------
+
+	gmode 0:pos 1366-sideposx,sideposy+144+128+128+8+8+8//座標の設定
+	if (homepicx1=0)or(homepicx1=1366){//画像が1か2で固定されていたら
+		if (defaulthomepic=0){
+			
+			gcopy 54,1366-sideposx,sideposy+144+128+128+8+8+8,256,128//ぼかし処理をかける
+			
+		}else{
+			
+			gcopy 55,1366-sideposx,sideposy+144+128+128+8+8+8,256,128}//ぼかし処理をかける
+	}
+	
+	pos 1366-sideposx,sideposy+144+128+128+8+8+8:color 0,0,0:gmode 4,,,150:celput 45//タブ
+	pos 1366-sideposx,:color 0,0,0:font "Noto Sans JP Light",16,16
+	mes "<<debug tab>>"
+	mes "windowactive/\n "+windowactive+"\nsettingwingmode/\n" +settingwingmode+""
+	//mes ""++""
+	//↑タブ----------------------------------------------------------------------------------------------------------------------
+
+
+	//↓タブ----------------------------------------------------------------------------------------------------------------------
+
+	sideappposy4=sideposy+144+128+128+8+8+8
+
+	gmode 0:pos 1366-sideposx+128,sideappposy4//座標の設定
+	if (homepicx1=0)or(homepicx1=1366){//画像が1か2で固定されていたら
+		if (defaulthomepic=0){
+			
+			gcopy 54,1366-sideposx+128,sideappposy4,256,128//ぼかし処理をかける
+			
+		}else{
+			
+			gcopy 55,1366-sideposx+128,sideappposy4,256,128}//ぼかし処理をかける
+	}
+	
+	pos 1366-sideposx+128,sideappposy4:color 0,0,0:gmode 4,,,150:celput 45//タブ
+	pos 1366-sideposx+128,:color 0,0,0:font "Noto Sans JP Light",16,16
+	
+	//↑タブ----------------------------------------------------------------------------------------------------------------------
+
+
+	//↓通知タブ----------------------------------------------------------------------------------------------------------------------
+
+	sideappposy5=sideposy+144+8+128+8+128+8+128+8//y座標の設定
+	
+	gmode 0:pos 1366-sideposx,sideappposy5//座標の設定
+	if (homepicx1=0)or(homepicx1=1366){//画像が1か2で固定されていたら
+		if (defaulthomepic=0){
+			
+			gcopy 54,1366-sideposx,sideappposy5,256,128//ぼかし処理をかける
+			
+		}else{
+			
+			gcopy 55,1366-sideposx,sideappposy5,256,128}//ぼかし処理をかける
+	}
+	pos 1366-sideposx,sideappposy5:color 0,0,0:gmode 4,,,150
+
+
+	//↓通知タブの背景
+
+	
+	
+		celput 47,,1,Notificationsize
+
+		
+			//↓マウスを置いたときにアニメーション
+			if (mousex>=1366-sideposx)and(mousey>=sideappposy5)and(mousex<=1366-sideposx+256)and(mousey<=sideappposy5+int(128.0*Notificationsize)){
+				if sidegmode1<128{sidegmode1=sidegmode1+16}
+			}else{if sidegmode1>0{sidegmode1=sidegmode1-8}}
+			if sidegmode1<0:sidegmode1=0
+			pos 1366-sideposx,sideappposy5:color 0,0,0:gmode 4,,,sidegmode1:celput 47,,1,Notificationsize
+			//↑マウスを置いたときにアニメーション
+		
+
+			
+	//↑通知タブの背景
+
+
+	
+	pos 1366-sideposx+238,sideappposy5+2:color 255,255,255:gmode 4,,,256:celput 62:gmode 0//通知タブの開閉ボタン
+	
+	pos 1366-sideposx,sideappposy5:color 0,0,0:font "Noto Sans JP Light",16,16
+
+
+
+
+	//↓展開切り替え
+	if syskey1=1{
+		if (sideon=1)and(mousex>1366-sideposx)and(mousey>sideappposy5)and(mousex<1366-sideposx+256)and(mousey<sideappposy5+26){
+			if Notificationon=1{
+				Notificationon=0
+				Notificationwait=0//時間経過をリセット
+				}else{
+					Notificationon=1
+					Notificationwait=0//時間経過をリセット
+					}
+			}
+		}
+	//↑展開切り替え
+
+	
+
+
+	//↓通知メニュー Notificationon=開かれていたら1 閉じられていたら0
+	
+	if Notification=""{//もし通知がなかったら
+		if Notificationon=0{//もし閉じられていたら
+
+
+			//↓アニメーション
+			setease 0.0,1.8,ease_quartic_out//計算式を指定
+			Notificationsize=2.0-geteasef(Notificationwait,64.0)//取得
+			if Notificationwait<64:Notificationwait=Notificationwait+1//時間経過させる(Notificationwait=時間経過値)
+			//↑アニメーション
+			
+			color 0,0,0:pos 1366-sideposx,sideappposy5
+			font "Noto Sans JP Light",12,16:mes "通知はありません"
+
+			
+			}else{//もし開かれていたら
+
+			//↓アニメーション
+			setease 0.2,2.0,ease_quartic_out//計算式を指定
+			Notificationsize=geteasef(Notificationwait,64.0)//取得
+			if Notificationwait<64:Notificationwait=Notificationwait+1//時間経過させる(Notificationwait=時間経過値)
+			//↑アニメーション
+			
+			color 0,0,0:pos 1366-sideposx,sideappposy5
+			font "Noto Sans JP Light",12,16:mes "通知はありません"
+			
+			}
+
+			
+			
+		}
+
+
+
+	if Notification!""{//もし通知があったら
+		if Notificationon=0{//もし閉じられていたら
+
+			//↓アニメーション
+			setease 0.0,1.8,ease_quartic_out//計算式を指定
+			Notificationsize=2.0-geteasef(Notificationwait,64.0)//取得
+			if Notificationwait<64:Notificationwait=Notificationwait+1//時間経過させる(Notificationwait=時間経過値)
+			//↑アニメーション
+			
+			color 0,0,0:pos 1366-sideposx,sideappposy5
+			font "Noto Sans JP Light",12,16:mes "件の通知"
+			}else{//もし開かれていたら
+
+			//↓アニメーション
+			setease 0.2,2.0,ease_quartic_out//計算式を指定
+			Notificationsize=geteasef(Notificationwait,64.0)//取得
+			if Notificationwait<64:Notificationwait=Notificationwait+1//時間経過させる(Notificationwait=時間経過値)
+			//↑アニメーション
+			
+			color 0,0,0:pos 1366-sideposx,sideappposy5
+			font "Noto Sans JP Light",12,16:mes "件の通知"
+			
+			}
+			
+		}
+
+
+
+	//↑通知メニュー
+	//↑通知タブ----------------------------------------------------------------------------------------------------------------------
+	*/
+	return
+*rightclicks/*
+	key=0
+	getkey key,2
+	if key=1{
+		if key!keyrightclick{
+			if rightclick=1{
+				rightclick=0
+				mouserightx=0
+				mouserighty=0
+				mouserightx2=0
+				mouserighty2=0
+				}else{
+					rightclick=1
+					mouserightx=mousex
+					mouserighty=mousey
+					
+					}
+			}
+		}
+	keyrightclick=key
+	//↑右クリックメニュー切り替え
+	
+	
+	if rightclick=1:active="rightclick"
+	if rightclick!1:return//右クリックしてないときはreturnする
+	
+	if mouserighty2<512{
+		if mouserighty2<480{mouserighty2=mouserighty2+20}
+		if mouserighty2<500{mouserighty2=mouserighty2+5}
+		if mouserighty2<510{mouserighty2=mouserighty2+2}
+		if mouserighty2<512{mouserighty2=mouserighty2+1}
+		}
+	//↑縦のアニメーション
+	mouserightx2=256
+	//↑横のアニメーション？
+	
+	//↓メニュー描画
+	color 212,212,212
+	boxf mouserightx-1,mouserighty-1,mouserightx2+mouserightx+1,mouserighty2+mouserighty+1
+	color 16,16,16
+
+	//↓イージング
+	pos mouserightx,mouserighty
+	gmode 0
+	DEasingX1=mouserightx
+	DEasingY1=mouserighty
+	DEasingX2=(mouserightx2+mouserightx)-mouserightx
+	DEasingY2=(mouserighty2+mouserighty)-mouserighty
+
+	DefaultEasing//←関数
+	//↑イージング
+	
+	//↑メニュー描画
+	//↓アクティブなウィンドウに合わせて内容を変更
+	//if (mouserighty<=24){
+		pos mouserightx,mouserighty
+		font "Noto Sans JP Light",16,16
+		color 255,255,255
+		mes "Command Prompt(C)"
+	//	}
+	//↑
+	
+	//↓クリック時の反応
+	
+	//一番上の項目が選ばれたときの挙動
+	if syskey1=1{
+		if (mousex>mouserightx)and(mousex<mouserightx+mouserightx2)and(mousey>mouserighty)and(mousey<mouserighty+24){
+			
+			}
+		}
+	
+	//↑クリック時の反応
+	
+	//左クリックされたときリセット
+	if syskey1=1{
+		rightclick=0
+			mouserightx=0
+			mouserighty=0
+			mouserightx2=0
+			mouserighty2=0
+			}
+	//左クリックされたときリセット
+
+	/*
+	<変数が多いので説明>
+	mouserightx=右クリックした瞬間のマウスx座標
+	mouserighty=右クリックした瞬間のマウスのy座標
+	mouserightx2=右クリックメニューのx大きさ(128がdefault)
+	mouserighty2=右クリックメニューのy大きさ(だんだん大きくなる,256まで)
+	*/
+	
+	return
+
+
+
+
+*usermenu
+	//スタートメニュー
+	
+	
+	
+	
+	
+
+	//↓usermenuon（表示するかしないか）が1になったときyに加算する / usermenuy=ユーザー画面のy座標
+	if usermenuon=0{
+		if usermenuy<512:usermenuy=usermenuy+64
+		usermenuyloop=0//時間をリセット
+
+		//↓gmodeの計算
+	if usermenugmode>0{
+		usermenugmode=usermenugmode-32//減らしていく
+	}
+	if usermenugmode<0{usermenugmode=0}//アンダーフローの処置
+		//↑gmodeの計算
+		
+		userwait=0
+		}
+	if usermenuon=1{
+		active="usermenu"
+	//↓y座標の計算
+		setease 600,128,ease_cubic_out//計算式を設定64/128
+		usermenuy=getease(usermenuyloop,24)
+		
+
+		if usermenuyloop<24:usermenuyloop=usermenuyloop+1//ループ時間を指定
+
+		//↓gmodeの計算
+		/*if usermenugmode<245{
+			usermenugmode=usermenugmode+2
+			if usermenugmode<240{usermenugmode=usermenugmode+2}
+			if usermenugmode<200{usermenugmode=usermenugmode+8}
+			}
+			*/
+				usermenugmode=256//gmodeを固定しちゃう
+		//↑gmodeの計算
+		}
+	usermenuy1=128-usermenuy
+	//↑y座標の計算
+	if usermenuy>512:usermenuy=512//オーバーフロー/アンダーフローしたときの救済措置
+	if usermenuy<128:usermenuy=128
+	//↑
+	
+	
+	
+	//↓下に表示になっていたときの計算
+	
+	if taskberpos=1{//表示が下になっていたらスタートメニューも下にする
+		usermenuy2=240+24//大抵の表示の座標
+		usermenuy3=744+24//スタートボタンの座標
+	}else{
+		usermenuy2=10//大抵の表示の座標
+	}
+	//↑
+
+
+	
+
+	if usermenuy!512{
+
+		
+		//↓イージング
+		gmode 4,,,usermenugmode-10
+		pos 10,24+usermenuy1+usermenuy2
+		DEasingX1=10
+		DEasingY1=24+usermenuy1+usermenuy2
+		DEasingX2=544
+		DEasingY2=480
+
+		DefaultEasing//←関数
+		//↑イージング
+
+	//↑後ろのぼかし処理
+	
+		
+		//背景を描画↓
+		pos 10,24+usermenuy1+usermenuy2//座標
+		gmode 4,,,usermenugmode-95
+		if DarkTheme=0{color 0,0,0:celput 52}else{color 255,255,255:celput 67}//ダークモードに合わせて背景画像を描画
+		gmode 0
+		
+		}//ユーザーメニューの背景
+	
+	//↓別のところを右クリックしたら閉じる
+	if (syskey1=1)and(usermenuy=128){
+			if (mousex>=10)and(mousey>=24+usermenuy2)and(mousex<=544+10)and(mousey<=480+24+usermenuy2){}else{//別のところをクリックしていたら
+				if (mousex>=0)and(mousey>=0+usermenuy3)and(mousex<=24)and(mousey<=24+usermenuy3){}else{usermenuon=0}}
+	}
+	//↑
+	
+	//↓内容の描画
+	if usermenuy!512{
+
+		//↓マウスを置いたときにアニメーション
+		if (mousex>=16+10)and(mousey>=24+16+usermenuy1+usermenuy2-1)and(mousex<=10+16+128+103)and(mousey<=24+16+usermenuy1+usermenuy2-1+64){
+			if usergmodeUS<64{usergmodeUS=usergmodeUS+16}
+		}else{if usergmodeUS>0{usergmodeUS=usergmodeUS-8}}
+		if usergmodeUS<0:usergmodeUS=0
+		pos 10+16,24+16+usermenuy1+usermenuy2-1:color 0,0,0:gmode 4,,,usergmodeUS:celput 78
+		//↑マウスを置いたときにアニメーション
+
+		
+		font "Noto Sans JP Light",16,16
+		pos 10+16,24+16+usermenuy1+usermenuy2-1
+		color 0,0,0:gmode 4,,,usermenugmode+11:celput 18,,0.5,0.5//ユーザー写真の描画
+		if DarkTheme=0{color 0,0,0}else{color 255,255,255}//ダークテーマに合わせて色を変える
+		mes username//ユーザーネーム
+		font "Noto Sans JP Light",12,16
+		mes "GamesScore/"+gamesscore+"\n"+sysname2+""//プラットフォーム
+		color 0,0,0
+		//line 256+10,usermenuy1*2+472+usermenuy2,256+10,usermenuy1*2+64+usermenuy2//線を引く
+
+
+
+
+
+		//↓shutdownのアイコン
+
+		//↓マウスを置いたときにアニメーション(shutdown)
+		if (mousex>=16+10)and(mousey>=24+16+usermenuy1+64+usermenuy2)and(mousex<=16+102+10)and(mousey<=24+16+usermenuy1+64+25+usermenuy2){
+			if usergmode1<128{usergmode1=usergmode1+16}
+		}else{if usergmode1>0{usergmode1=usergmode1-8}}
+		if usergmode1<0:usergmode1=0
+		pos 10+16,24+16+usermenuy1+64+usermenuy2:color 0,0,0:gmode 4,,,usergmode1:celput 53
+		//↑マウスを置いたときにアニメーション(shutdown)
+
+		pos 10+16,24+16+usermenuy1+64+usermenuy2:color 0,0,0://gmode 4,,,164:celput 53//後ろの背景
+		pos 10+16,24+16+usermenuy1+64+usermenuy2:color 0,0,0:gmode 4,,,usermenugmode+11:celput 13,,0.5,0.5//shutdownのアイコン
+		color 255,255,255:mes "Shutdown"//文字の描画
+
+
+		if (mousex>=16+10)and(mousey>=24+16+usermenuy1+64+usermenuy2)and(mousex<=16+102+10)and(mousey<=24+16+usermenuy1+64+25+usermenuy2)and(syskey1=1){
+			shutdown=1//クリックされたらshutdownする
+			usermenuon=0//メニューを閉じる
+			}
+
+
+		//↑shutdownのアイコン
+
+
+
+		//↓ロックのアイコン
+
+		//↓マウスを置いたときにアニメーション(ロック)
+		if (mousex>=16+128+10)and(mousey>=24+16+usermenuy1+64+usermenuy2)and(mousex<=16+102+128+10)and(mousey<=24+16+usermenuy1+64+25+usermenuy2){
+			if usergmode2<128{usergmode2=usergmode2+16}
+		}else{if usergmode2>0{usergmode2=usergmode2-8}}
+		if usergmode2<0:usergmode2=0
+		pos 10+16+128,24+16+usermenuy1+64+usermenuy2:color 0,0,0:gmode 4,,,usergmode2:celput 53
+		//↑マウスを置いたときにアニメーション(ロック)
+
+		pos 10+16+128,24+16+usermenuy1+64+usermenuy2:color 0,0,0://gmode 4,,,164:celput 53//後ろの背景
+		pos 10+16+128,24+16+usermenuy1+64+usermenuy2:color 0,0,0:gmode 4,,,usermenugmode+11:celput 34,,,//サインアウトのアイコン
+		color 255,255,255:mes "Sign out"//文字の描画
+
+
+		if (mousex>=16+128+10)and(mousey>=24+16+usermenuy1+64+usermenuy2)and(mousex<=16+102+128+10)and(mousey<=24+16+usermenuy1+64+25+usermenuy2)and(syskey1=1){
+			dolockon=1//クリックされたらロックする
+			usermenuon=0//メニューを閉じる
+			}
+
+		
+		//↑ロックのアイコン
+
+
+
+
+
+		//↓コントロールセンターの描画---------------------------------------------------------
+
+		
+		pos 10+16,usermenuy1+128+16+usermenuy2
+		color 0,0,0:gmode 4,,,32:celput 59
+		pos 10+16,usermenuy1+128+16+usermenuy2
+		if DarkTheme=0{color 0,0,0}else{color 255,255,255}//ダークテーマに合わせて色を変える
+
+		//↓テーマ切り替え--------------------------------------------
+	
+		//一つのボタンのサイズは44*44
+		CtrlPnX=16+10//X座標
+		CtrlPnY=usermenuy1+128+16+usermenuy2//Y座標
+		CtrlPnName="Theme"
+	
+		pos CtrlPnX,CtrlPnY
+
+
+		//↓マウスを置いたときにアニメーション
+
+		CtrlID=1//色々制御するためのID　移植するときはここだけ変えたらOKだぜ
+		
+		if (mousex>=CtrlPnX)and(mousey>=CtrlPnY)and(mousex<=CtrlPnX+44)and(mousey<=CtrlPnY+44){
+			if Ctrlgmode(CtrlID)<128{Ctrlgmode(CtrlID)=Ctrlgmode(CtrlID)+16}
+		}else{if Ctrlgmode(CtrlID)>0{Ctrlgmode(CtrlID)=Ctrlgmode(CtrlID)-8}}
+		if Ctrlgmode(CtrlID)<0:Ctrlgmode(CtrlID)=0
+		pos CtrlPnX,CtrlPnY:color 0,0,0:gmode 4,,,Ctrlgmode(CtrlID):celput 72//画像を描画
+		
+		//↑マウスを置いたときにアニメーション
+
+
+		pos CtrlPnX,CtrlPnY//座標はっつけておく
+		
+		if DarkTheme=0{	//ライトテーマだったら
+			
+			color 255,255,255:gmode 4,,,usermenugmode+11:celput 71
+			color 0,0,0:pos CtrlPnX,CtrlPnY+40:font "Noto Sans JP Light",12:mes CtrlPnName//タイトル
+			
+			}else{		//ダークテーマだったら
+			
+			color 0,0,0:gmode 4,,,usermenugmode+11:celput 70
+			color 255,255,255:pos CtrlPnX,CtrlPnY+40:font "Noto Sans JP Light",12:mes CtrlPnName//タイトル
+			
+			}//ダークテーマに合わせて色、アイコンなどを変える
+
+
+
+		if (mousex>=CtrlPnX)and(mousey>=CtrlPnY)and(mousex<=CtrlPnX+44)and(mousey<=CtrlPnY+44)and(syskey1=1){
+			if DarkTheme=1{
+				DarkTheme=0
+					}else{
+						DarkTheme=1
+						}
+				}
+			//テーマの切り替え
+
+
+			
+		
+		
+		//↑テーマ切り替え-----------------------
+		
+		
+		//↑コントロールセンターの描画
+
+
+		
+
+		//↓タブの描画
+
+
+		//↓デバッグタブ----------------------------------------------------------------------------------------------------------------------
+	
+		pos 256+16,usermenuy1*2+48+usermenuy2:color 0,0,0:gmode 4,,,usermenugmode-70:celput 47//デバッグタブ
+		pos 256+16,:color 0,0,0:font "Noto Sans JP Light",16,16
+		mes "<<debug tab>>":mes "Active/"+active+" and "+active2+""//デバッグタブの中身
+		mes "SystemVersion/\n failed to get the data\nusermenuy1/"+usermenuy1+"
+
+		//↑デバッグタブ---------------------------------------
+		
+		//↓タブ1----------------------------------------------------------------------------------------------------------------------
+		pos 256+16,usermenuy1*2+48+128+8+usermenuy2:color 0,0,0:gmode 4,,,usermenugmode-70:celput 45//タブ
+		pos 256+16,:color 0,0,0:font "Noto Sans JP Light",16,16
+		mes "usermenuyloop\n /"+usermenuyloop+""
+		//↑タブ1----------------------------------------------------------------------------------------------------------------------
+
+		//↓タブ1----------------------------------------------------------------------------------------------------------------------
+		pos 256+16+130,usermenuy1*2+48+128+8+usermenuy2:color 0,0,0:gmode 4,,,usermenugmode-70:celput 45//タブ
+		pos 256+16+130,:color 0,0,0:font "Noto Sans JP Light",16,16
+		mes "test"
+	///↑タブ1----------------------------------------------------------------------------------------------------------------------
+
+		
+		//↑タブの描画
+		
+		}
+	//↑内容の描画
+	
+	return
+*dialoglabel
+	//dialogon =ダイアログを表示
+	//dialogin =ダイアログの内容
+	//dialogtitle = ダイアログのタイトル
+	//dialogset=ダイアログの種類 0=ok 1=yes/no 2=重大
+	//dialogstat=結果　yes=0 no=1
+	//ざるそば美味すぎ...無限に食べれる
+
+	
+	if dialogon=1{//もしダイアログが表示するに なっていたら アニメーションをする
+
+		if dialogposy<256{//y座標のアニメーション
+			dialogposy=dialogposy+1
+			if dialogposy<240{dialogposy=dialogposy+4}
+			if dialogposy<200{dialogposy=dialogposy+16}
+			}
+
+		if dialoggmode<245{//gmodeのアニメーション
+			dialoggmode=dialoggmode+1
+			if dialoggmode<240{dialoggmode=dialoggmode+4}
+			if dialoggmode<200{dialoggmode=dialoggmode+16}
+			}
+		
+		
+		
+		getkey key,13
+		if key=1{dialogon=0}//エンターで閉じる処理
+		
+		
+		if (mousex>ginfo(20)/2+96-12)and(mousey>dialogposy+232-12)and(mousex<ginfo(20)/2+96-12+64)and(mousey<dialogposy+232+12){//もしマウスがボタンの上に来たら
+			if syskey1=1{dialogon=0:dialogin="":dialogtitle=""}//クリックされたら閉じる
+			}
+		
+		}
+
+		
+	if dialogon=0{//もしダイアログが非表示になっていたら
+		if dialoggmode>0{//gmodeのアニメーション
+			dialoggmode=dialoggmode-7
+		}
+
+	if dialoggmode<0:dialoggmode=0//アンダーフローしたときの処理
+	
+	if dialoggmode=0{//もしgmodeが0になっていたら(閉じきったら)
+		dialoggmode=0:dialogposy=128}//リセット
+	}
+
+	
+	
+	if dialoggmode!0{//もし描画することになっていたら
+
+		pos ginfo(20)/2-160,dialogposy
+
+		if dialoggmode>200{//もし表示していたら
+			if defaulthomepic=0{
+			
+			gcopy 54,ginfo(20)/2-160,dialogposy,320,256//ぼかし
+			
+				}else{
+			
+			gcopy 55,ginfo(20)/2-160,dialogposy,320,256}//ぼかし
+		}
+
+			
+		color 0,0,0:gmode 4,,,dialoggmode-64:celput 60//ダイアログの背景
+		if dialogon=1{//内容の描画
+			color 0,0,0:gmode 4,,,dialoggmode:pos ginfo(20)/2+32,dialogposy:celput 41//右上の背景
+			font "Noto Sans JP Light",16,16:color 0,0,0:pos ginfo(20)/2-160+320-100,dialogposy:mes dialogtitle//ダイアログのtitle
+
+			//内容
+			pos ginfo(20)/2-160,dialogposy+48:font "Noto Sans JP Light",16,16:color 0,0,0//位置やフォント、色など
+
+			mes dialogin//内容
+
+			//内容
+			
+			//↓マウスを置いたときにアニメーション(ダイアログボタン)
+			if (mousex>ginfo(20)/2+96-12)and(mousey>dialogposy+232-12)and(mousex<ginfo(20)/2+96-12+64)and(mousey<dialogposy+232+12){
+				if dialoggmode1<128{dialoggmode1=dialoggmode1+16}
+			}else{if dialoggmode1>0{dialoggmode1=dialoggmode1-8}}
+			if dialoggmode1<0:dialoggmode1=0
+			pos ginfo(20)/2+96-12,dialogposy+232-12:color 0,0,0:gmode 4,,,dialoggmode1:celput 43//アニメーション
+			//↑マウスを置いたときにアニメーション(ダイアログボタン)
+			
+			
+			pos ginfo(20)/2+96+8,dialogposy+232-12:color 0,0,0:font "Noto Sans JP Light",16,16:mes "OK"//文字
+			
+			}
+		
+		}//ダイアログの描画
+
+	if dialoggmode!0{active="dialog"}//アクティブをダイアログに
+	
+	return
+
+
+
+*reallylock//ロック画面
+	
+	if dolockon=1{//もしロック画面がonになっていたら
+
+	
+		tasklockyloop=0//タスクバーのアニメーションをリセット
+		tasklockyEase=0//タスクバー類を動かすイージング関数に使う変数もリセット
+		LockPicOffYTime=0//ロック解除した時の画像を上に動かすイージング関数に使う変数もリセット
+		LockPicOffY=0//座標も適当にリセット
+		lockpicgmodeHome=0//デスクトップの明るさもリセット
+
+		
+		
+			setease 256,128,ease_quartic_out//計算式を設定
+			lockpicposy=getease(lockpicposyEase,32)
+			if lockpicposyEase<32{lockpicposyEase=lockpicposyEase+1}
+			
+		
+			
+		
+		if lockpicgmode<128{lockpicgmode=lockpicgmode+10}
+		if lockpicgmode>128{lockpicgmode=128}
+		Active="lock"//Activeをロックに
+		
+		sideon=0//サイドバーを非表示で固定
+		
+
+		
+
+
+		gmode 0:pos 0,0::gcopy 49,0,0,ginfo(20),ginfo(21)//後ろに真っ黒の背景を置く
+		gmode 3,,,lockpicgmode+128:pos 0,0
+		if defaulthomepic=0{gcopy 83,0,0,ginfo(20),ginfo(21)}else{gcopy 84,0,0,ginfo(20),ginfo(21)}//ロック画面の壁紙
+
+/*ユーザーの画像を描画するやーつ　いつか作り直すよ
+
+		//↓ぼかし処理
+		gmode 0//gmodeの設定
+		pos ginfo(20)/2-64-32,lockpicposy-8
+		DEasingX1=ginfo(20)/2-64-32
+		DEasingY1=lockpicposy-8
+		DEasingX2=192
+		DEasingY2=192
+		DEasingGsel=0
+		DefaultEasing//←関数
+
+	
+		pos ginfo(20)/2-64-32,lockpicposy-8
+		if DarkTheme=0{color 0,0,0:gmode 4,,,128:celput 68}else{color 255,255,255:gmode 4,,,128:celput 69}//後ろの背景
+		
+
+		//↑ぼかし処理
+		pos ginfo(20)/2-64,lockpicposy:color 0,0,0:gmode 4,,,256:celput 18:gmode 0//ユーザーアイコンの描画
+		font "Noto Sans JP Light",24,16
+		//font "超極細ゴシック",26,16
+
+		if DarkTheme=0{color 0,0,0}else{color 255,255,255}//ダークモードに合わせて文字色を変える
+
+		chr_str=username
+			dim size, 2
+			GetTextExtentPoint32 hdc, varptr(chr_str) ,strlen(chr_str), varptr(size)
+			chr_setpos=ginfo(20)/2,ginfo(21)/2-98 //描画する文字列の中心座標
+			pos chr_setpos(0)-size(0)/2, lockpicposy+128 : mes chr_str//ユーザーネーム
+
+
+*/
+
+	/*
+	・ー　ー・ー・　ー　・・ー　・ー　・ー・・　・ー・・　ー・ーー　ーー・・ーー　・・　ー　　・ー・・　・　・ー　・・・ー　・　・・・　　・・・　ーーー　ーー　・　ー　・・・・　・・　ー・　ーー・　　ー　ーーー　　ー・・・　・　　ー・・　・　・・・　・・　・ー・　・　ー・・　　ー　・・・・　・ー　ー　　・・　　ー・ー・　ーーー　・・ー　・ー・・　ー・・　ー・　ー　　ーー　・ー　ー・ー　・　　ーーー　・・・　ーー　ーーー　ー・・　ーーー　ー・ー　・・　　ー・ー・　ーーー　ーー　・ーー・　・ー・・　・　ー　・　ー・・　・ー・ー・ー　
+*/
+		
+		pos ginfo(20)/2-64,ginfo(21)/2/2-128
+		
+		font "Noto Sans JP Light",16,16
+		chr_setpos=ginfo(20)/2,ginfo(21)/2+256:chr_str="Please the enter key...":MesCenterPos//クリックしてロック解除
+		pos ginfo(20)/2-16,0:gmode 2:celput 34:gmode 0//ロックのアイコン
+
+		//↓時刻
+		
+		color 255,255,255:font "Noto Sans JP Light",128
+		
+		chr_setpos=ginfo(20)/2,ginfo(21)/5+(lockpicposy-128)
+		chr_str=timedatams:MesCenterPos//時刻
+
+		
+		font "Noto Sans JP Light",30,16
+		pos 0,ginfo(21)/3+(lockpicposy-128):chr_setpos=ginfo(20)/2,0:chr_str=timedays:MesCenterPosX//日付
+		//↑
+
+
+
+
+		//↓shutdownのアイコン
+
+		//↓マウスを置いたときにアニメーション(shutdown)
+		if (mousex>=ginfo(20)-118)and(mousey>=ginfo(21)-68)and(mousex<=ginfo(20)-118+102)and(mousey<=ginfo(21)-68+25){
+			if lockgmode1<128{lockgmode1=lockgmode1+16}
+		}else{if lockgmode1>0{lockgmode1=lockgmode1-8}}
+		if lockgmode1<0:lockgmode1=0
+		pos ginfo(20)-118,ginfo(21)-68:color 0,0,0:gmode 4,,,lockgmode1:celput 53
+		//↑マウスを置いたときにアニメーション(shutdown)
+
+		pos ginfo(20)-118,ginfo(21)-68:color 0,0,0:gmode 4,,,128:celput 53//後ろの背景
+		pos ginfo(20)-118,ginfo(21)-68:color 0,0,0:gmode 4,,,256:celput 13,,0.5,0.5//shutdownのアイコン
+		font "Noto Sans JP Light",12,16
+		color 255,255,255:mes "Shutdown"//文字の描画
+
+
+
+		if (mousex>=ginfo(20)-118)and(mousey>=ginfo(21)-68)and(mousex<=ginfo(20)-118+102)and(mousey<=ginfo(21)-68+25)and(syskey1=1)and(active="lock")and(active2="lock"){
+			shutdown=1//クリックされたらshutdownする
+			}
+
+
+		//↑shutdownのアイコン
+
+		gmode 3,,,256-(lockpicgmode+128):pos 0,0
+		if defaulthomepic=0{gcopy 83,0,0,ginfo(20),ginfo(21)}else{gcopy 84,0,0,ginfo(20),ginfo(21)}//更に上から壁紙をかけ、アニメーションにする
+		
+		
+		
+		
+		getkey key,13
+		if (key=1)and(Active="lock")and(active2="lock"){//ロック解除
+				dolockon=0
+			}
+		}
+		
+	if (dolockon=0){//ロックが解除されていたら LockPicOffY=ロックを解除したときの画像のY座標
+		if lockpicgmode>0{lockpicgmode=lockpicgmode-4}//数を小さくしていくぅ
+
+		
+		if lockpicgmode!0{
+
+			sideon=1//サイドバーを表示
+
+			pos ginfo(20)/2-16,0:gmode 2:celput 61:gmode 0//アンロックのアイコン
+
+			
+			lockpicposy=256//ユーザー画像のy座標をリセット
+			
+			
+		
+			}
+			
+			
+		}
+
+		setease 64,0,ease_quad_out//式を設定
+		tasklocky=getease(tasklockyEase,32)//タスクバーなどを上に動かす
+		if tasklockyEase<32{tasklockyEase=tasklockyEase+1}//数を足しておくだけ
+
+	
+		
+	return
+
+
+
+
+
+
+
+
+
+
+
+
+
+*settingapp
+	//設定アプリ
+
+
+	
+	WinID=1//設定アプリのwindowID(WindowID)
+	
+	WindowsDraw
+	if AppOn(WinID)=1{
+	//↓中身書いていくぞ～！
+
+	WinSizeX(WinID)=800:WinSizeY(WinID)=680
+	WinTit="このあぜりあについて"
+	WinTitSize=32
+
+	//color 0,0,0:boxf:pos 0,0:gmode 3,,,128:celput 55
+	color 255,255,255:boxf
+
+	pos 32,64:gmode 2:celput 18
+
+	pos 256,64
+	
+	color 0,0,0:font "Noto Sans JP Light",32:mes "あぜりあ ONE"
+	color 200,200,200:font "Noto Sans JP Light",12:mes "バージョン "+ver+""
+	color 0,0,0:font "Noto Sans JP Light",16
+	mes "制作："+copyright+"\nこのソフトウェアは、MITライセンスで公開されている\nAzalea-One-OpenSource-Projectの一部です。"
+	font "Noto Sans JP Light",12
+	mes {"Copyright (c) 2023 SkyArrow
+
+Permission is hereby granted, free of charge, to any person obtaining 
+a copy of this software and associated documentation files (the “Software”), 
+to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+sell copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+THE USE OR OTHER DEALINGS IN THE SOFTWARE."}
+	mes active2:mes winkey:mes WinAct(WinID)
+	
+	
+	//↑中身書いていくぞ～！
+	}
+	
+	WindowsDraw2
+
+
+
+	return
+
+
+*dialogtestapp
+	if (DialogTestSecond<256)and(dolockon=0):DialogTestSecond=DialogTestSecond+1
+	if DialogTestSecond=255{
+		//↓デバッグ用
+		dialogon=1//ダイアログを表示する
+		dialogtitle="Warning!"//ダイアログのタイトル
+		dialogin="このダイアログはレガシーな\nウィンドウシステムの機能の\nテストです。\n\n\nsent from dialogtestapp,SkyArrow"
+		//↑デバッグ用
+	}
+	return
