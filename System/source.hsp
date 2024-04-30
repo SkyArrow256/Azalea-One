@@ -114,8 +114,8 @@
 
 	//font Noto Sans JP Light
 	
-	ver="Azalea OpenSource 2021/12/05 si1.10.5+2023/10/27"//バージョン
-	sysname2="あぜりあ One OpenSource-Project"
+	ver="Azalea-One 2021/12/05 si1.10.6 +OSSv1.1 2024/4/30"//バージョン
+	sysname2="あぜりあ One"
 	sysname=""+sysname2+"/"+ver+""//システムの名前
 
 	//font "超極細ゴシック",48:color 255,255,255:pos ginfo(20)/2-128,ginfo(21)/2+128-64:mes sysname2//タイトル？os名？の描画
@@ -189,6 +189,7 @@
 	dim WinSizeY,128//windowの大きさ
 	ddim WinGsize,128//windowの倍率（1時的なやつ。開いたときor閉じたときなど）
 	dim WinAct,128//アクティブかどうかを保存する
+	dim WinWait,128
 	//↑配列変数に変換
 
 	repeat 128
@@ -1199,7 +1200,7 @@ return
 	mes ver
 	mes copyright
 	font "Noto Sans JP Light",16
-	mes "このソフトウェアはMITライセンスで公開された\nAzalea-One-OpenSource-Projectの一部です。"
+	mes "このソフトウェアはMITライセンスで公開された\nAzalea-Oneの一部です。"
 	//mes "投稿主チャンネル:https://www.youtube.com/channel/UCU5xDMYjpH_hsgyRCZIFF4Q"
 	
 	color 255,0,0:pos mousex-12,mousey-12:gmode 4,,,128:celput 95//マウスカーソルを表示
@@ -2543,10 +2544,6 @@ return
 			pos chr_setpos(0)-size(0)/2, lockpicposy+128 : mes chr_str//ユーザーネーム
 
 
-*/
-
-	/*
-	・ー　ー・ー・　ー　・・ー　・ー　・ー・・　・ー・・　ー・ーー　ーー・・ーー　・・　ー　　・ー・・　・　・ー　・・・ー　・　・・・　　・・・　ーーー　ーー　・　ー　・・・・　・・　ー・　ーー・　　ー　ーーー　　ー・・・　・　　ー・・　・　・・・　・・　・ー・　・　ー・・　　ー　・・・・　・ー　ー　　・・　　ー・ー・　ーーー　・・ー　・ー・・　ー・・　ー・　ー　　ーー　・ー　ー・ー　・　　ーーー　・・・　ーー　ーーー　ー・・　ーーー　ー・ー　・・　　ー・ー・　ーーー　ーー　・ーー・　・ー・・　・　ー　・　ー・・　・ー・ー・ー　
 */
 		
 		pos ginfo(20)/2-64,ginfo(21)/2/2-128
