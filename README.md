@@ -1,4 +1,4 @@
-# AzaleaOne-OSS
+# Azalea-One
 ## このプロジェクトについて
 自己責任でご利用ください。
 
@@ -16,6 +16,7 @@ Azalea Oneの最新バージョンである2021/12/05 si1.10.5（厳密には開
 
 ## 動作要件
 Windows10以降 または wineを導入したlinux,macOS環境
+
 スクリプトを実行するにはHot Soup Processor 3.6以降が必要です。
 
 intel Core i5(11世代) または M2 mac (wine)
